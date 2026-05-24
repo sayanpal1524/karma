@@ -1,0 +1,21 @@
+{
+  "name": "karma-wb-jobs-portal",
+  "version": "1.1.0",
+  "description": "Unified West Bengal Gov Jobs & Vacancy Tracker Portal (Scraper Backend & Frontend Monorepo)",
+  "main": "server.js",
+  "scripts": {
+    "server": "node server.js",
+    "frontend": "http-server -p 8000 -c-1",
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"npm run server\" \"npm run frontend\""
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "http-server": "^14.1.1"
+  },
+  "author": "Karma Public Accountability Initiative",
+  "license": "MIT"
+}

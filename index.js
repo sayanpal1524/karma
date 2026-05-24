@@ -1,22 +1,23 @@
 // Karma West Bengal Government Jobs & Vacancies - Core Interactive Engine
-// Developed with clean, modular, vanilla ES6 JavaScript.
+// Enhanced with Hybrid Fallback (Auto-probes local Express backend scraper server).
 
 (function () {
   // --- APPLICATION STATE ---
   let state = {
-    jobs: JSON.parse(JSON.stringify(JOBS_DATA)), // Deep copy of preloaded database
+    jobs: [], // Loaded dynamically via probe (live server vs local offline fallback)
+    mode: "sandbox", // 'live' (Server running at :3000) or 'sandbox' (Local offline fallback)
     filters: {
       search: "",
       department: "all",
       category: "all",
-      status: "all" // Filter by status card (e.g., 'all', 'open', 'soon', etc.)
+      status: "all"
     },
     scannerActive: false,
     newNoticesDiscovered: 0
   };
 
-  // Simulated virtual job database additions for the crawler engine
-  const UPCOMING_DISCOVERIES = [
+  // Simulated virtual job database additions for the offline sandbox crawler engine
+  const SANDBOX_UPCOMING_DISCOVERIES = [
     {
       id: "wbpsc-food-si-2026",
       dept: "WBPSC",
@@ -37,9 +38,7 @@
       resultsDate: null,
       applyUrl: "https://wbpsc.gov.in/food-si-apply",
       pdfUrl: "https://wbpsc.gov.in/Download?name=food_si_2026_detailed_not.pdf",
-      crawlHistory: [
-        { date: "2026-05-24 17:58", event: "NEW NOTIFICATION DISCOVERED BY SCANNER. Crawled post data, pay scale and guidelines." }
-      ]
+      crawlHistory: []
     },
     {
       id: "wbprb-kp-si-2026",
@@ -61,19 +60,16 @@
       resultsDate: null,
       applyUrl: "https://prb.wb.gov.in/kp-si-recruitment-2026",
       pdfUrl: "https://prb.wb.gov.in/Download?notice=kp_si_2026_detailed_notice.pdf",
-      crawlHistory: [
-        { date: "2026-05-24 18:00", event: "NEW RECRUITMENT CAMPAIGN DETECTED. Extracted application form links and eligibility requirements." }
-      ]
+      crawlHistory: []
     }
   ];
 
   // --- INITIALIZATION ---
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     initClock();
     initAccordions();
     initEventListeners();
-    updateStatsAndProgress();
-    renderAllJobs();
+    await probeBackendServer(); // Probe server to determine mode and load database
     initAutopilotScanner();
     initCountdownTimers();
   });
@@ -188,7 +184,11 @@
     // 7. Manual Scanner Force Scan trigger
     const btnScan = document.getElementById("btn-trigger-scan");
     btnScan.addEventListener("click", () => {
-      triggerManualCrawlScan();
+      if (state.mode === "live") {
+        triggerLiveServerScan();
+      } else {
+        triggerLocalSandboxScan();
+      }
     });
   }
 
@@ -204,6 +204,56 @@
       state.filters.status !== "all";
 
     btnReset.style.display = hasActiveFilters ? "flex" : "none";
+  }
+
+  // --- HYBRID FALLBACK CONNECTION PROBE ---
+  async function probeBackendServer() {
+    writeConsoleLine("[SYSTEM] Booting Karma Core engine v1.5...", "stamp");
+    writeConsoleLine("[SYSTEM] Probing backend crawler server at http://localhost:3000...", "info");
+
+    const connectionStatus = document.getElementById("scan-connection-status");
+    const indicator = document.querySelector(".scanner-indicator");
+
+    try {
+      const response = await fetch("http://localhost:3000/api/jobs");
+      if (response.ok) {
+        // Connected successfully! Re-initialize in Live Server Mode
+        state.jobs = await response.json();
+        state.mode = "live";
+
+        writeConsoleLine("[SYSTEM] Connected successfully to Live Scraper Backend!", "success");
+        writeConsoleLine("[DATABASE] Synchronized notices cache from Node.js database.", "success");
+        
+        if (connectionStatus) {
+          connectionStatus.innerText = "LIVE PORTAL";
+          connectionStatus.style.color = "var(--color-open)";
+        }
+        if (indicator) {
+          indicator.style.backgroundColor = "var(--color-open)";
+        }
+      } else {
+        throw new Error("Server returned error status " + response.status);
+      }
+    } catch (err) {
+      // Revert automatically to Sandbox Simulation Mode
+      state.jobs = JSON.parse(JSON.stringify(JOBS_DATA)); // Use standard offline dataset
+      state.mode = "sandbox";
+
+      writeConsoleLine("[SYSTEM] Local backend server offline or CORS block.", "warning");
+      writeConsoleLine("[SYSTEM] Reverting automatically to Offline Sandbox Mode.", "warning");
+      writeConsoleLine("[DATABASE] Loaded local preloaded notices database (CORS safe).", "success");
+      
+      if (connectionStatus) {
+        connectionStatus.innerText = "SANDBOX SIM";
+        connectionStatus.style.color = "var(--primary)";
+      }
+      if (indicator) {
+        indicator.style.backgroundColor = "var(--primary)";
+      }
+    }
+
+    updateStatsAndProgress();
+    renderAllJobs();
   }
 
   // --- STATS & PROGRESS BAR CALCULATOR ---
@@ -240,7 +290,6 @@
 
   // --- JOB CARD RENDER ENGINE ---
   function renderAllJobs() {
-    // Categories matching index.html block containers
     const categoryContainers = {
       "General Administration": document.getElementById("list-admin"),
       "Police & Defense": document.getElementById("list-police"),
@@ -250,7 +299,6 @@
       "Technical & Medical": document.getElementById("list-technical")
     };
 
-    // Accordion blocks to hide/show dynamically
     const categoryBlocks = {
       "General Administration": document.getElementById("cat-block-admin"),
       "Police & Defense": document.getElementById("cat-block-police"),
@@ -260,10 +308,9 @@
       "Technical & Medical": document.getElementById("cat-block-technical")
     };
 
-    // Clean current rendered DOMs
+    // Clean current list DOMs
     Object.values(categoryContainers).forEach(c => { if(c) c.innerHTML = ""; });
 
-    // Category counters for matched jobs
     const matchedCategoryCounts = {
       "General Administration": 0,
       "Police & Defense": 0,
@@ -275,7 +322,7 @@
 
     let overallMatches = 0;
 
-    // Filter and map jobs into their respective container lists
+    // Filter and append job cards
     state.jobs.forEach(job => {
       // 1. Fuzzy Search match
       const query = state.filters.search;
@@ -305,7 +352,7 @@
       }
     });
 
-    // Toggle categories sections visibility based on matches
+    // Toggle blocks visibility
     Object.keys(categoryBlocks).forEach(cat => {
       const count = matchedCategoryCounts[cat];
       const block = categoryBlocks[cat];
@@ -321,7 +368,7 @@
       }
     });
 
-    // Handle overall Empty State illustration injection
+    // Handle Empty State
     const mainSection = document.getElementById("categories-root");
     const existEmpty = document.getElementById("karma-empty-state");
     
@@ -352,7 +399,7 @@
     // Add pulsing border if newly discovered this session
     if (job.newlyDiscovered) {
       li.style.border = "1px solid var(--color-open)";
-      li.style.boxShadow = "0 0 10px rgba(16, 185, 129, 0.15)";
+      li.style.boxShadow = "0 0 12px rgba(16, 185, 129, 0.25)";
     }
 
     let dateBadge = "";
@@ -368,7 +415,6 @@
       dateBadge = `✗ Registration Closed`;
     }
 
-    // Direct Badge formatting
     let badgeClass = `badge-${job.status}`;
     let badgeIcon = "";
     if (job.status === "open") badgeIcon = "✓";
@@ -420,7 +466,7 @@
       </div>
     `;
 
-    // Attaches Event Listeners to job title and details buttons
+    // Click triggers details drawer
     const triggerDetails = () => openJobDetailDrawer(job.id);
     li.querySelector(".job-title-btn").addEventListener("click", triggerDetails);
     li.querySelector(".btn-details").addEventListener("click", triggerDetails);
@@ -455,7 +501,7 @@
       { label: "Exam Date Scheduled", date: job.examDate, desc: "Written/Skill testing checks carried out in districts." }
     ];
 
-    const todayStr = "2026-05-24"; // Portal current timeline snapshot anchor point
+    const todayStr = "2026-05-24"; // Timeline snapshot date
 
     timelineEvents.forEach(evt => {
       if (!evt.date) return;
@@ -498,25 +544,31 @@
     const btnApply = document.getElementById("drawer-link-apply");
 
     btnPdf.href = job.pdfUrl;
+    btnPdf.setAttribute("target", "_blank");
 
     if (job.status === "open") {
       btnApply.href = job.applyUrl;
+      btnApply.setAttribute("target", "_blank");
       btnApply.innerText = "🔗 Apply Online Direct";
       btnApply.className = "btn-drawer-action btn-primary";
     } else if (job.status === "admit") {
       btnApply.href = job.applyUrl;
+      btnApply.setAttribute("target", "_blank");
       btnApply.innerText = "📇 Download Admit Card";
       btnApply.className = "btn-drawer-action btn-primary";
     } else if (job.status === "results") {
       btnApply.href = job.applyUrl;
-      btnApply.innerText = "🏆 View Merit List List";
+      btnApply.setAttribute("target", "_blank");
+      btnApply.innerText = "🏆 View Merit List";
       btnApply.className = "btn-drawer-action btn-primary";
     } else if (job.status === "soon") {
-      btnApply.removeAttribute("href");
+      btnApply.setAttribute("href", "javascript:void(0);");
+      btnApply.removeAttribute("target");
       btnApply.innerText = "⏳ Awaiting Portal Registration link";
       btnApply.className = "btn-drawer-action disabled";
     } else {
-      btnApply.removeAttribute("href");
+      btnApply.setAttribute("href", "javascript:void(0);");
+      btnApply.removeAttribute("target");
       btnApply.innerText = "✗ Application Window Closed";
       btnApply.className = "btn-drawer-action disabled";
     }
@@ -525,7 +577,7 @@
     drawerOverlay.classList.add("active");
   }
 
-  // --- AUTOMATIC CRAWLER BACKGROUND AUTO-POLIST TIMER ---
+  // --- AUTOMATIC CRAWLER BACKGROUND INTERFACES ---
   function initAutopilotScanner() {
     const consoleOut = document.getElementById("console-output");
     
@@ -541,9 +593,8 @@
 
     let index = 0;
     
-    // Auto sync updates scrolling lines every 25 seconds
     setInterval(() => {
-      if (state.scannerActive) return; // Don't interrupt manual scans
+      if (state.scannerActive) return; // Don't interrupt manual override runs
       
       const msg = crawlerMessages[index];
       writeConsoleLine(msg.text, msg.type);
@@ -567,8 +618,92 @@
     consoleOut.scrollTop = consoleOut.scrollHeight; // Scroll to bottom
   }
 
-  // --- FORCE CRAWLER MANUAL SCAN OVERRIDE ---
-  function triggerManualCrawlScan() {
+  // --- MANUAL SCANNER: LIVE EXPRESS SERVER MODE ---
+  async function triggerLiveServerScan() {
+    if (state.scannerActive) return;
+    
+    state.scannerActive = true;
+    const btnScan = document.getElementById("btn-trigger-scan");
+    const btnText = document.getElementById("scan-btn-text");
+    const connectionStatus = document.getElementById("scan-connection-status");
+    
+    btnScan.classList.add("scanning");
+    btnText.innerText = "Crawling domains...";
+    if(connectionStatus) {
+      connectionStatus.innerText = "FORCE OVERRIDE";
+      connectionStatus.style.color = "var(--primary)";
+    }
+
+    writeConsoleLine("[SYS_ALERT] MANUAL OVERRIDE PORTAL CRAWL REQUEST TRANSMITTED.", "warning");
+    writeConsoleLine("[SYS_LINK] Handshaking with http://localhost:3000/api/scan...", "info");
+
+    try {
+      const response = await fetch("http://localhost:3000/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!response.ok) {
+        throw new Error("Server returned error status " + response.status);
+      }
+
+      const data = await response.json();
+      
+      // Print logs streamed from the server sequentially to look beautiful
+      data.logs.forEach((logText, idx) => {
+        setTimeout(() => {
+          let type = "info";
+          if (logText.includes("[OK]")) type = "success";
+          else if (logText.includes("[FOUND]")) type = "success";
+          else if (logText.includes("[WARN]")) type = "warning";
+          else if (logText.includes("[CRAWL_RESTRICTED]")) type = "warning";
+          
+          writeConsoleLine(logText, type);
+        }, idx * 400);
+      });
+
+      // Handle newly discovered job notice
+      setTimeout(() => {
+        if (data.newJob) {
+          data.newJob.newlyDiscovered = true;
+          
+          // Prepend newly discovered notice
+          state.jobs.unshift(data.newJob);
+          
+          updateStatsAndProgress();
+          renderAllJobs();
+          initCountdownTimers(); // Recalculate sidebars countdowns
+
+          // Update marquee banner
+          const marquee = document.getElementById("live-marquee");
+          if (marquee) {
+            marquee.innerHTML = `<span style="color: var(--color-open); font-weight: 800;">[LIVE SCAN DETECTED]</span> <strong>[${data.newJob.dept}]</strong> ${data.newJob.postName} (${data.newJob.noticeNo}) is active with ${data.newJob.vacancies} vacancies! &nbsp;&nbsp;•&nbsp;&nbsp; ` + marquee.innerHTML;
+          }
+
+          // Trigger visual toast
+          showSystemOverlayToast(data.newJob);
+        }
+      }, data.logs.length * 400);
+
+    } catch (err) {
+      writeConsoleLine("[ERROR] Failed connection to live scanner server during POST scan.", "closed");
+      writeConsoleLine("[SYSTEM] Please verify backend node process is running on port 3000.", "warning");
+    }
+
+    // Re-enable manual scanning button after animation finishes
+    setTimeout(() => {
+      btnScan.classList.remove("scanning");
+      btnText.innerText = "Force Portal Scan";
+      if(connectionStatus) {
+        connectionStatus.innerText = "LIVE PORTAL";
+        connectionStatus.style.color = "var(--color-open)";
+      }
+      state.scannerActive = false;
+    }, 3800);
+  }
+
+  // --- MANUAL SCANNER: OFFLINE SANDBOX FALLBACK MODE ---
+  function triggerLocalSandboxScan() {
     if (state.scannerActive) return;
     
     state.scannerActive = true;
@@ -583,70 +718,61 @@
       connectionStatus.style.color = "var(--primary)";
     }
 
-    writeConsoleLine("[SYS_ALERT] MANUAL OVERRIDE PORTAL RE-SCAN REQUEST DETECTED.", "warning");
-    writeConsoleLine("[SYS_LINK] Bypassing autopilot caches... Establishing secure sockets...", "info");
+    writeConsoleLine("[SYS_ALERT] MANUAL OVERRIDE SANDBOX RE-SCAN TRIGGERED.", "warning");
+    writeConsoleLine("[SYS_LINK] Running sandbox simulator crawlers...", "info");
 
     const scanSteps = [
-      { text: "[1/6] Scanning: wbpsc.gov.in...", delay: 600, type: "info" },
-      { text: "[2/6] Scanning: prb.wb.gov.in...", delay: 1200, type: "info" },
-      { text: "[3/6] Scanning: www.wbhrb.in...", delay: 1800, type: "info" },
-      { text: "[4/6] Scanning: www.wbbpe.org...", delay: 2400, type: "info" },
-      { text: "[5/6] Scanning: www.westbengalssc.com...", delay: 3000, type: "info" }
+      { text: "[1/5] Scanning: wbpsc.gov.in...", delay: 600, type: "info" },
+      { text: "[2/5] Scanning: prb.wb.gov.in...", delay: 1200, type: "info" },
+      { text: "[3/5] Scanning: www.wbhrb.in...", delay: 1800, type: "info" },
+      { text: "[4/5] Scanning: www.wbbpe.org...", delay: 2400, type: "info" },
+      { text: "[5/5] Scanning: www.westbengalssc.com...", delay: 3000, type: "info" }
     ];
 
-    // Exceute sequential typing crawl logs
     scanSteps.forEach(step => {
       setTimeout(() => {
         writeConsoleLine(step.text, step.type);
       }, step.delay);
     });
 
-    // Finished simulated delay scan outcomes
     setTimeout(() => {
-      const nextDiscovery = UPCOMING_DISCOVERIES[state.newNoticesDiscovered];
+      const nextDiscovery = SANDBOX_UPCOMING_DISCOVERIES[state.newNoticesDiscovered];
 
       if (nextDiscovery) {
-        // Discovered a new live update!
         nextDiscovery.newlyDiscovered = true;
         
-        // Add new log to the crawled history
         const dateStr = new Date().toISOString().slice(0, 10) + " " + new Date().toTimeString().slice(0, 5);
         nextDiscovery.crawlHistory.unshift({
           date: dateStr,
-          event: `CRAWLER DISCOVERY: Published online. Scoped ${nextDiscovery.vacancies} vacancies. Apply now links verified.`
+          event: `SANDBOX DISCOVERY: Published online. Scoped ${nextDiscovery.vacancies} vacancies. Apply now links verified.`
         });
 
-        // Insert new job notice to our reactive memory state
+        // Insert new job notice
         state.jobs.unshift(nextDiscovery);
         state.newNoticesDiscovered++;
 
         writeConsoleLine(`[FOUND] 1 new advertisement detected: ${nextDiscovery.postName} (${nextDiscovery.noticeNo})!`, "success");
         writeConsoleLine(`[SYNC] Compiled notice qualifications, pay level and apply links. State synchronized.`, "success");
         
-        // Dynamic stats calculations and layout rendering
         updateStatsAndProgress();
         renderAllJobs();
-        initCountdownTimers(); // Recalculate sidebars countdowns
+        initCountdownTimers();
 
-        // Update the top announcements marquee ticker with flashing highlight
         const marquee = document.getElementById("live-marquee");
         if (marquee) {
-          marquee.innerHTML = `<span style="color: var(--color-open); font-weight: 800;">[NEW NOTICE DISCOVERED]</span> <strong>[${nextDiscovery.dept}]</strong> ${nextDiscovery.postName} (${nextDiscovery.noticeNo}) is active with ${nextDiscovery.vacancies} vacancies! &nbsp;&nbsp;•&nbsp;&nbsp; ` + marquee.innerHTML;
+          marquee.innerHTML = `<span style="color: var(--color-open); font-weight: 800;">[SANDBOX DISCOVERY]</span> <strong>[${nextDiscovery.dept}]</strong> ${nextDiscovery.postName} (${nextDiscovery.noticeNo}) is active with ${nextDiscovery.vacancies} vacancies! &nbsp;&nbsp;•&nbsp;&nbsp; ` + marquee.innerHTML;
         }
 
-        // Trigger visual system dialog alert
         showSystemOverlayToast(nextDiscovery);
       } else {
-        // No new notices left to scan in database
         writeConsoleLine("[OK] Checked all 18 WB official portals. All job entries up to date. Resync completed.", "success");
       }
 
-      // Re-enable manual scanning button
       btnScan.classList.remove("scanning");
       btnText.innerText = "Force Portal Scan";
       if(connectionStatus) {
-        connectionStatus.innerText = "SCANNING AUTO";
-        connectionStatus.style.color = "var(--color-open)";
+        connectionStatus.innerText = "SANDBOX SIM";
+        connectionStatus.style.color = "var(--primary)";
       }
       state.scannerActive = false;
 
@@ -688,7 +814,6 @@
 
     document.body.appendChild(toast);
 
-    // Slide Toast in
     setTimeout(() => {
       toast.style.transform = "translateY(0)";
       toast.style.opacity = "1";
@@ -700,7 +825,6 @@
       setTimeout(() => toast.remove(), 400);
     };
 
-    // Attach actions
     toast.querySelector(".toast-btn-dismiss").addEventListener("click", dismissToast);
     
     toast.querySelector(".toast-btn-action").addEventListener("click", () => {
@@ -708,7 +832,6 @@
       openJobDetailDrawer(job.id);
     });
 
-    // Auto dismiss after 10 seconds
     setTimeout(dismissToast, 10000);
   }
 
@@ -721,7 +844,7 @@
     const countdownRoot = document.getElementById("countdown-root");
     if (!countdownRoot) return;
 
-    // Filter jobs which have active closing deadlines
+    // Filter jobs closing soon
     const activeOpenJobs = state.jobs.filter(j => j.status === "open" && j.dateDeadline);
     
     if (activeOpenJobs.length === 0) {
@@ -731,7 +854,6 @@
 
     countdownRoot.innerHTML = "";
 
-    // Build counting block interfaces
     activeOpenJobs.forEach(job => {
       const item = document.createElement("div");
       item.className = "countdown-item";
@@ -761,7 +883,6 @@
       countdownRoot.appendChild(item);
     });
 
-    // Update ticking logic every 1 second
     const tickCountdowns = () => {
       const today = new Date();
       
@@ -773,18 +894,15 @@
         const diff = deadline - today;
 
         if (diff <= 0) {
-          // Closed deadline
           item.querySelector(".countdown-timer").innerHTML = `<div style="font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--color-closed); padding: 6px 0;">REGISTRATION COMPLETED / CLOSED</div>`;
           return;
         }
 
-        // Ticking Math
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const secs = Math.floor((diff % (1000 * 60)) / 1000);
 
-        // Render updates to DOM elements
         item.querySelector(".days").innerText = days.toString().padStart(2, "0");
         item.querySelector(".hours").innerText = hours.toString().padStart(2, "0");
         item.querySelector(".mins").innerText = mins.toString().padStart(2, "0");
@@ -797,7 +915,6 @@
   }
 
   // --- HELPERS ---
-  // Beautiful date formatter (e.g. 2026-05-24 -> May 24, 2026)
   function formatDate(dateString) {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
