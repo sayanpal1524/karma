@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARMA — West Bengal Gov Jobs & Vacancies Tracker (Live)</title>
+  <meta name="description" content="A premium, real-time public ledger tracking active recruitments, exam notifications, admit cards, and results across all West Bengal Government departments.">
+  <meta name="keywords" content="WBPSC Clerkship, WBCS 2026, WBP SI, Constable recruitment, WB Health, TET, West Bengal government jobs, live vacancy tracker">
+  <meta name="author" content="Karma Public Accountability Initiative">
+  
+  <!-- Styling Sheet -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <header class="masthead">
+    <div class="masthead-bar">
+      <span><span class="live-tag">LIVE</span> &nbsp; KARMA — West Bengal Gov Jobs & Vacancy Tracker</span>
+      <span id="today-date">Sunday, 24 May 2026</span>
+    </div>
+    
+    <div class="masthead-main">
+      <!-- High-Tech Inline SVG West Bengal Map Outline (Glowing Vector Art) -->
+      <div class="masthead-logo">
+        <svg viewBox="0 0 100 160" width="100" height="160" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="map-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f59e0b" />
+              <stop offset="50%" stop-color="#d97706" />
+              <stop offset="100%" stop-color="#b45309" />
+            </linearGradient>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#f59e0b" flood-opacity="0.3" />
+            </filter>
+          </defs>
+          <!-- Abstracted high-end geographical path representation of West Bengal -->
+          <path d="M 45,5 C 50,5 52,10 50,15 C 48,20 54,22 55,25 C 56,28 50,30 48,32 C 46,34 50,38 52,40 C 54,42 52,45 50,47 C 48,49 46,51 45,54 C 44,57 41,60 40,62 C 39,64 35,66 33,68 C 31,70 30,73 30,76 C 30,79 33,82 35,85 C 37,88 38,91 38,94 C 38,97 36,99 35,102 C 34,105 32,108 30,111 C 28,114 26,117 25,120 C 24,123 26,126 28,128 C 30,130 33,128 35,127 C 37,126 40,128 42,130 C 44,132 43,135 44,138 C 45,141 48,143 50,145 C 52,147 55,146 58,144 C 61,142 63,139 65,136 C 67,133 65,130 67,127 C 69,124 73,123 75,120 C 77,117 76,114 78,111 C 80,108 83,106 85,103 C 87,100 85,97 84,94 C 83,91 80,88 80,85 C 80,82 82,79 81,76 C 80,73 77,71 75,69 C 73,67 72,64 72,61 C 72,58 74,55 73,52 C 72,49 68,47 66,44 C 64,41 65,38 63,35 C 61,32 58,30 56,27 C 54,24 53,21 52,18 C 51,15 48,10 47,8 Z" 
+                stroke="url(#map-glow)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)" fill="rgba(245, 158, 11, 0.05)" />
+          <!-- Hotspot nodes indicating scan points (Kolkata, Siliguri, etc.) -->
+          <circle cx="58" cy="120" r="2.5" fill="#10b981" />
+          <circle cx="58" cy="120" r="6" stroke="#10b981" stroke-width="0.8" opacity="0.6" />
+          <circle cx="50" cy="20" r="2" fill="#3b82f6" />
+          <circle cx="35" cy="85" r="2.5" fill="#f59e0b" />
+          <path d="M 58,120 L 70,126" stroke="#10b981" stroke-width="0.5" stroke-dasharray="2,2" />
+          <path d="M 50,20 L 62,14" stroke="#3b82f6" stroke-width="0.5" stroke-dasharray="2,2" />
+        </svg>
+      </div>
+      
+      <div class="masthead-text">
+        <h1>KARMA &nbsp;<span>Recruitment Tracker</span></h1>
+        <p class="masthead-sub" id="site-subtitle">The unified public directory and crawler dashboard tracking exam calendars, vacancies, registrations, and official notices across different departments of the West Bengal Government.</p>
+        
+        <!-- Metadata cards -->
+        <div class="masthead-meta" id="masthead-meta">
+          <div class="meta-item">
+            <span class="meta-label">Total Vacancies Tracked</span>
+            <span class="meta-value accent" id="meta-vacancies">23,320+ Posts</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Active Notices</span>
+            <span class="meta-value" id="meta-notices">32 Notices</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Scan Frequency</span>
+            <span class="meta-value" id="meta-frequency">Real-Time (60s)</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Tracked Portals</span>
+            <span class="meta-value" id="meta-portals">18 Departments</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Live Dispatch Ticker Band -->
+  <section class="live-dispatch-section" id="dispatch-section">
+    <div class="dispatch-banner">
+      <div class="dispatch-badge">Live Scanner Feed</div>
+      <div class="dispatch-track">
+        <div class="dispatch-msg" id="live-marquee">
+          <strong>[WBPSC]</strong> Online registrations active for <strong>Clerkship Examination 2026</strong>. Deadline: June 15 &nbsp;&nbsp;•&nbsp;&nbsp; 
+          <strong>[WBPRB]</strong> Indicative constable notice 04/2026 released online. 8,400 vacancies available &nbsp;&nbsp;•&nbsp;&nbsp; 
+          <strong>[WBHRB]</strong> Medical Specialist and Specialist MO notice soon. Cabinet approval finalized
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard Overview / Summary Cards -->
+  <section class="stats-band">
+    <div class="stats-inner" id="stats-container">
+      <div class="stat-card active-filter" data-status="all">
+        <span class="stat-num total-c" id="stat-total">10</span>
+        <span class="stat-label">Total Notices</span>
+      </div>
+      <div class="stat-card" data-status="open">
+        <span class="stat-num open-c" id="stat-open">5</span>
+        <span class="stat-label">Apply Online ✓</span>
+      </div>
+      <div class="stat-card" data-status="soon">
+        <span class="stat-num soon-c" id="stat-soon">3</span>
+        <span class="stat-label">Coming Soon ◑</span>
+      </div>
+      <div class="stat-card" data-status="admit">
+        <span class="stat-num admit-c" id="stat-admit">1</span>
+        <span class="stat-label">Admit Cards Out 📇</span>
+      </div>
+      <div class="stat-card" data-status="results">
+        <span class="stat-num results-c" id="stat-results">1</span>
+        <span class="stat-label">Results Declared 🏆</span>
+      </div>
+      <div class="stat-card" data-status="closed">
+        <span class="stat-num closed-c" id="stat-closed">1</span>
+        <span class="stat-label">Closed / Archived ✗</span>
+      </div>
+    </div>
+    
+    <!-- Multi-segmented Progress Bar -->
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-track" id="segment-track">
+        <div class="progress-segment bg-open" style="width: 50%" id="seg-open"></div>
+        <div class="progress-segment bg-soon" style="width: 30%" id="seg-soon"></div>
+        <div class="progress-segment bg-admit" style="width: 10%" id="seg-admit"></div>
+        <div class="progress-segment bg-results" style="width: 10%" id="seg-results"></div>
+        <div class="progress-segment bg-closed" style="width: 0%" id="seg-closed"></div>
+      </div>
+      <div class="progress-legend">
+        <span><span class="legend-dot bg-open"></span>Apply Online</span>
+        <span><span class="legend-dot bg-soon"></span>Coming Soon</span>
+        <span><span class="legend-dot bg-admit"></span>Admit Cards Out</span>
+        <span><span class="legend-dot bg-results"></span>Results Out</span>
+        <span><span class="legend-dot bg-closed"></span>Closed</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Filters Band -->
+  <section class="filter-band">
+    <div class="filter-card">
+      <div class="filter-top">
+        <div class="search-wrap">
+          <input type="text" class="search-input" id="search-box" placeholder="Search notices by post name, ref no, department...">
+          <span class="search-icon">🔍</span>
+        </div>
+        
+        <div class="dept-select-wrap">
+          <select class="dept-select" id="dept-filter">
+            <option value="all">All Departments</option>
+            <option value="WBPSC">WBPSC (Public Service)</option>
+            <option value="WBPRB">WBPRB (Police Board)</option>
+            <option value="WBHRB">WBHRB (Health Board)</option>
+            <option value="WBBPE">WBBPE (Primary Board)</option>
+            <option value="WBSSC">WBSSC (School Service)</option>
+            <option value="WBJEEB">WBJEEB (Entrance Exams)</option>
+          </select>
+        </div>
+        
+        <button class="btn-clear-filters" id="btn-reset" style="display: none;">
+          Clear Filters ✕
+        </button>
+      </div>
+      
+      <!-- Category Selection Chips -->
+      <div class="category-chips" id="category-chips-container">
+        <button class="chip active" data-category="all">All Sectors</button>
+        <button class="chip" data-category="General Administration">General Admin</button>
+        <button class="chip" data-category="Police & Defense">Police & Defense</button>
+        <button class="chip" data-category="Health & Medical">Health & Nurse</button>
+        <button class="chip" data-category="Education & Teaching">Teaching</button>
+        <button class="chip" data-category="Clerical">Clerical / Office</button>
+        <button class="chip" data-category="Technical & Medical">Technical / Entrance</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Multi-Column Split Wrapper -->
+  <div class="main-wrapper">
+    
+    <!-- Left Column: Department / Category Accordion Blocks -->
+    <main class="job-categories-section" id="categories-root">
+      
+      <!-- General Admin Accordion -->
+      <div class="category-block expanded" id="cat-block-admin">
+        <div class="category-header">
+          <span class="cat-icon">🏛️</span>
+          <div class="cat-title-wrap">
+            <h2 class="cat-title">General Administration & Services</h2>
+            <p class="cat-subtitle">Executive services, inspectors, miscellaneous officers, and central desks</p>
+          </div>
+          <span class="cat-badge" id="badge-admin">2 notices</span>
+          <span class="cat-toggle">▼</span>
+        </div>
+        <div class="category-content">
+          <ul class="job-list" id="list-admin">
+            <!-- Jobs will be injected here via index.js -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Police Accordion -->
+      <div class="category-block expanded" id="cat-block-police">
+        <div class="category-header">
+          <span class="cat-icon">👮</span>
+          <div class="cat-title-wrap">
+            <h2 class="cat-title">Police & Defense Services</h2>
+            <p class="cat-subtitle">Constables, Sub-Inspectors, Lady Police, and state defensive cadres</p>
+          </div>
+          <span class="cat-badge" id="badge-police">2 notices</span>
+          <span class="cat-toggle">▼</span>
+        </div>
+        <div class="category-content">
+          <ul class="job-list" id="list-police">
+            <!-- Jobs injected here -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Health Accordion -->
+      <div class="category-block expanded" id="cat-block-health">
+        <div class="category-header">
+          <span class="cat-icon">🏥</span>
+          <div class="cat-title-wrap">
+            <h2 class="cat-title">Health & Medical Departments</h2>
+            <p class="cat-subtitle">Staff nurses, general duty medical officers, and specialists</p>
+          </div>
+          <span class="cat-badge" id="badge-health">2 notices</span>
+          <span class="cat-toggle">▼</span>
+        </div>
+        <div class="category-content">
+          <ul class="job-list" id="list-health">
+            <!-- Jobs injected here -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Education Accordion -->
+      <div class="category-block expanded" id="cat-block-education">
+        <div class="category-header">
+          <span class="cat-icon">🎓</span>
+          <div class="cat-title-wrap">
+            <h2 class="cat-title">Education & Academic Teaching</h2>
+            <p class="cat-subtitle">Primary teachers, secondary school subject assistant teacher boards</p>
+          </div>
+          <span class="cat-badge" id="badge-education">2 notices</span>
+          <span class="cat-toggle">▼</span>
+        </div>
+        <div class="category-content">
+          <ul class="job-list" id="list-education">
+            <!-- Jobs injected here -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Clerical Accordion -->
+      <div class="category-block expanded" id="cat-block-clerical">
+        <div class="category-header">
+          <span class="cat-icon">📂</span>
+          <div class="cat-title-wrap">
+            <h2 class="cat-title">Clerical, Assistants & Group C</h2>
+            <p class="cat-subtitle">District clerks, desk assistants, typing specialists, and lower division</p>
+          </div>
+          <span class="cat-badge" id="badge-clerical">1 notice</span>
+          <span class="cat-toggle">▼</span>
+        </div>
+        <div class="category-content">
+          <ul class="job-list" id="list-clerical">
+            <!-- Jobs injected here -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Technical Accordion -->
+      <div class="category-block expanded" id="cat-block-technical">
+        <div class="category-header">
+          <span class="cat-icon">⚙️</span>
+          <div class="cat-title-wrap">
+            <h2 class="cat-title">Technical & Entrance Examinations</h2>
+            <p class="cat-subtitle">Engineering cadres, medical entrances, diploma allocations, and stipends</p>
+          </div>
+          <span class="cat-badge" id="badge-technical">1 notice</span>
+          <span class="cat-toggle">▼</span>
+        </div>
+        <div class="category-content">
+          <ul class="job-list" id="list-technical">
+            <!-- Jobs injected here -->
+          </ul>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Right Column: Interactive Real-Time Sidebar -->
+    <aside class="sidebar">
+      
+      <!-- Retro-Terminal Scanner simulated interface -->
+      <section class="scanner-card">
+        <div class="scanner-header">
+          <h3 class="scanner-title">
+            <span class="scanner-indicator"></span>
+            Portal Crawl Terminal
+          </h3>
+          <span id="scan-connection-status" style="font-family: var(--font-mono); font-size: 9px; color: var(--color-open); letter-spacing: 0.05em; text-transform: uppercase;">SCANNING AUTO</span>
+        </div>
+        
+        <!-- Scrolling terminal console -->
+        <div class="scanner-console" id="console-output">
+          <div class="console-line stamp">[SYSTEM] Karma Core crawling engine v1.4 active...</div>
+          <div class="console-line stamp">[SYSTEM] Local database linked with 18 tracked portals.</div>
+          <div class="console-line success">[OK] wbpsc.gov.in scanned successfully (No changes)</div>
+          <div class="console-line success">[OK] prb.wb.gov.in scanned successfully (No changes)</div>
+          <div class="console-line info">[IDLE] Autopilot scanner running. Sleeping for 60s.</div>
+        </div>
+        
+        <div class="scanner-actions">
+          <button class="btn-scan" id="btn-trigger-scan">
+            <span class="scan-icon">🔄</span>
+            <span id="scan-btn-text">Force Portal Scan</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Calendar Countdown Widgets for important notices -->
+      <section class="deadlines-card">
+        <h3 class="deadlines-header">🕒 Critical Registrations Deadlines</h3>
+        <div class="countdown-list" id="countdown-root">
+          <!-- Timers dynamically injected here via JS -->
+        </div>
+      </section>
+
+    </aside>
+
+  </div>
+
+  <!-- Detailed Overlay Drawer (Job detail drawers panel) -->
+  <div class="drawer-overlay" id="detail-drawer-overlay">
+    <div class="drawer">
+      <div class="drawer-header">
+        <div class="drawer-header-left">
+          <span class="drawer-dept" id="drawer-dept-badge">WBPSC</span>
+          <h3 class="drawer-title" id="drawer-post-title">Clerkship Examination 2026</h3>
+        </div>
+        <button class="btn-close-drawer" id="btn-close-drawer-trigger" aria-label="Close details">✕</button>
+      </div>
+      
+      <!-- Basic details cards -->
+      <div class="drawer-grid">
+        <div class="drawer-card">
+          <span class="drawer-card-label">Ref Notice No</span>
+          <span class="drawer-card-value" id="drawer-notice-no">13/2026</span>
+        </div>
+        <div class="drawer-card">
+          <span class="drawer-card-label">Total Vacancies</span>
+          <span class="drawer-card-value accent" id="drawer-vacancies-count">3,900 Positions</span>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <span class="drawer-sec-title">Educational & Physical Criteria</span>
+        <div class="drawer-sec-body" id="drawer-criteria">
+          Madhyamik (10th) pass or equivalent, with basic computer operation and typing skills (20 wpm in English or 10 wpm in Bengali).
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <span class="drawer-sec-title">Official Salary & Pay Scale</span>
+        <div class="drawer-sec-body" id="drawer-salary">
+          Pay Level 6 (₹22,700 - ₹58,500) under WBS (ROPA) Rules 2019, plus DA, HRA, and Medical allowances.
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <span class="drawer-sec-title">Recruitment Schedule Timeline</span>
+        <!-- Schedule timelines -->
+        <div class="timeline" id="drawer-timeline-container">
+          <div class="timeline-item completed">
+            <div class="timeline-dot"></div>
+            <div class="timeline-info">
+              <span class="timeline-lbl">Applications Opened</span>
+              <span class="timeline-date">2026-05-10</span>
+            </div>
+            <span class="timeline-desc">Online application form active on portal</span>
+          </div>
+          <div class="timeline-item active">
+            <div class="timeline-dot"></div>
+            <div class="timeline-info">
+              <span class="timeline-lbl">Application Deadline</span>
+              <span class="timeline-date">2026-06-15</span>
+            </div>
+            <span class="timeline-desc">Filing window closes at 23:59 hours</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-info">
+              <span class="timeline-lbl">Admit Card Released</span>
+              <span class="timeline-date">2026-07-20</span>
+            </div>
+            <span class="timeline-desc">Download links made available in portal dashboard</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-info">
+              <span class="timeline-lbl">Exam Scheduled</span>
+              <span class="timeline-date">2026-08-09</span>
+            </div>
+            <span class="timeline-desc">Objective type test across all state centers</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <span class="drawer-sec-title">Crawler Scan History Log</span>
+        <!-- Scraper logs table -->
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th style="width: 140px;">Timestamp</th>
+              <th>Log Event</th>
+            </tr>
+          </thead>
+          <tbody id="drawer-logs-body">
+            <tr>
+              <td class="log-date">2026-05-10 11:30</td>
+              <td class="log-event">Online application system activated.</td>
+            </tr>
+            <tr>
+              <td class="log-date">2026-05-10 09:00</td>
+              <td class="log-event">Detailed advertisement 13/2026 published. Live vacancy tracker initiated.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Action Footer Links -->
+      <div class="drawer-footer">
+        <a href="#" target="_blank" class="btn-drawer-action btn-secondary" id="drawer-link-pdf">
+          📜 View Official PDF
+        </a>
+        <a href="#" target="_blank" class="btn-drawer-action btn-primary" id="drawer-link-apply">
+          🔗 Apply Online Direct
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JavaScript imports -->
+  <script src="jobsData.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>
