@@ -9,6 +9,7 @@
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"npm run server\" \"npm run frontend\""
   },
   "dependencies": {
+    "cheerio": "^1.2.0",
     "express": "^4.19.2",
     "node-cron": "^3.0.3"
   },

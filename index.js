@@ -36,8 +36,8 @@
       admitCardDate: "2026-08-10",
       examDate: "2026-09-06",
       resultsDate: null,
-      applyUrl: "https://wbpsc.gov.in/food-si-apply",
-      pdfUrl: "https://wbpsc.gov.in/Download?name=food_si_2026_detailed_not.pdf",
+      applyUrl: "https://psc.wb.gov.in/food-si-apply",
+      pdfUrl: "https://psc.wb.gov.in/Download?name=food_si_2026_detailed_not.pdf",
       crawlHistory: []
     },
     {
@@ -263,7 +263,7 @@
 
     state.jobs.forEach(job => {
       counts[job.status] = (counts[job.status] || 0) + 1;
-      totalVacancies += job.vacancies;
+      totalVacancies += (job.vacancies || 0);
     });
 
     // Update statistics display cards
@@ -430,7 +430,10 @@
       <div class="job-card-main">
         <div class="job-card-header">
           <button class="job-title-btn" type="button">${job.postName}</button>
-          <span class="badge ${badgeClass}">${badgeIcon} ${job.statusText}</span>
+          <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            ${job.source === 'scraped' ? '<span class="badge badge-scraped">📡 Scraped</span>' : ''}
+            <span class="badge ${badgeClass}">${badgeIcon} ${job.statusText}</span>
+          </div>
         </div>
         
         <div class="job-meta-row">
@@ -440,11 +443,11 @@
           </div>
           <div class="job-meta-item">
             <span class="job-meta-label">Notice No:</span>
-            <strong>${job.noticeNo}</strong>
+            <strong>${job.noticeNo || 'N/A'}</strong>
           </div>
           <div class="job-meta-item">
             <span class="job-meta-label">Vacancies:</span>
-            <strong class="accent">${job.vacancies.toLocaleString("en-IN")} Posts</strong>
+            <strong class="accent">${job.vacancies !== null && job.vacancies !== undefined ? job.vacancies.toLocaleString("en-IN") + " Posts" : "Not available"}</strong>
           </div>
           <div class="job-meta-item">
             ${dateBadge}
@@ -485,10 +488,10 @@
     // Populate drawer base fields
     document.getElementById("drawer-dept-badge").innerText = job.deptFull;
     document.getElementById("drawer-post-title").innerText = job.postName;
-    document.getElementById("drawer-notice-no").innerText = job.noticeNo;
-    document.getElementById("drawer-vacancies-count").innerText = job.vacancies.toLocaleString("en-IN") + " Positions";
-    document.getElementById("drawer-criteria").innerText = job.qualification;
-    document.getElementById("drawer-salary").innerText = job.payScale;
+    document.getElementById("drawer-notice-no").innerText = job.noticeNo || "N/A";
+    document.getElementById("drawer-vacancies-count").innerText = job.vacancies !== null && job.vacancies !== undefined ? job.vacancies.toLocaleString("en-IN") + " Positions" : "Not available";
+    document.getElementById("drawer-criteria").innerText = job.qualification || "Not available";
+    document.getElementById("drawer-salary").innerText = job.payScale || "Not available";
 
     // Render Timeline dynamically
     const timelineContainer = document.getElementById("drawer-timeline-container");
@@ -582,7 +585,7 @@
     const consoleOut = document.getElementById("console-output");
     
     const crawlerMessages = [
-      { text: "Autopilot scan checks scheduled... connecting to wbpsc.gov.in", type: "info" },
+      { text: "Autopilot scan checks scheduled... connecting to psc.wb.gov.in", type: "info" },
       { text: "[PSC] Scan complete: verified notice 13/2026 Clerkship active.", type: "success" },
       { text: "Autopilot scan checks scheduled... connecting to prb.wb.gov.in", type: "info" },
       { text: "[PRB] Scan complete: verified constable 04/2026 portal responsive.", type: "success" },
@@ -722,7 +725,7 @@
     writeConsoleLine("[SYS_LINK] Running sandbox simulator crawlers...", "info");
 
     const scanSteps = [
-      { text: "[1/5] Scanning: wbpsc.gov.in...", delay: 600, type: "info" },
+      { text: "[1/5] Scanning: psc.wb.gov.in...", delay: 600, type: "info" },
       { text: "[2/5] Scanning: prb.wb.gov.in...", delay: 1200, type: "info" },
       { text: "[3/5] Scanning: www.wbhrb.in...", delay: 1800, type: "info" },
       { text: "[4/5] Scanning: www.wbbpe.org...", delay: 2400, type: "info" },
@@ -803,7 +806,7 @@
         <div style="flex: 1;">
           <span style="font-family: var(--font-mono); font-size: 9px; font-weight: 700; color: var(--color-open); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Scanner Discovery Alert</span>
           <h4 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.3; margin-bottom: 4px;">${job.postName}</h4>
-          <p style="font-size: 11px; color: var(--ink-faint); margin-bottom: 12px;">Notice No: ${job.noticeNo} | Tracked Vacancies: ${job.vacancies} Posts</p>
+          <p style="font-size: 11px; color: var(--ink-faint); margin-bottom: 12px;">Notice No: ${job.noticeNo || 'N/A'} | Tracked Vacancies: ${job.vacancies !== null && job.vacancies !== undefined ? job.vacancies + ' Posts' : 'Not available'}</p>
           <div style="display: flex; gap: 8px;">
             <button class="toast-btn-action" style="background: linear-gradient(135deg, var(--color-open), #34d399); color: #000; font-family: var(--font-mono); font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 6px 12px; border-radius: var(--border-radius-sm);">View Details</button>
             <button class="toast-btn-dismiss" style="border: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 6px 12px; border-radius: var(--border-radius-sm); color: var(--ink-mid);">Dismiss</button>

@@ -20,8 +20,8 @@ const JOBS_DATA = [
     admitCardDate: "2026-07-20",
     examDate: "2026-08-09",
     resultsDate: null,
-    applyUrl: "https://wbpsc.gov.in/apply-online",
-    pdfUrl: "https://wbpsc.gov.in/Download?name=clerkship_2026_detailed_notice.pdf",
+    applyUrl: "https://psc.wb.gov.in/apply-online",
+    pdfUrl: "https://psc.wb.gov.in/Download?name=clerkship_2026_detailed_notice.pdf",
     crawlHistory: [
       { date: "2026-05-08 10:15", event: "Short indicative notification scanned on WBPSC portal." },
       { date: "2026-05-10 09:00", event: "Detailed advertisement 13/2026 published. Live vacancy tracker initiated." },
@@ -46,8 +46,8 @@ const JOBS_DATA = [
     admitCardDate: "2026-05-20",
     examDate: "2026-06-07",
     resultsDate: null,
-    applyUrl: "https://wbpsc.gov.in/admit-card-download",
-    pdfUrl: "https://wbpsc.gov.in/Download?name=wbcs_2026_prelims_admit_card_notice.pdf",
+    applyUrl: "https://psc.wb.gov.in/admit-card-download",
+    pdfUrl: "https://psc.wb.gov.in/Download?name=wbcs_2026_prelims_admit_card_notice.pdf",
     crawlHistory: [
       { date: "2026-01-15 14:00", event: "Detailed WBCS 2026 notification published online." },
       { date: "2026-02-28 23:59", event: "Application registration portal closed." },
@@ -72,8 +72,8 @@ const JOBS_DATA = [
     admitCardDate: "2025-12-15",
     examDate: "2026-01-18",
     resultsDate: "2026-05-22",
-    applyUrl: "https://wbpsc.gov.in/results-portal",
-    pdfUrl: "https://wbpsc.gov.in/Download?name=miscellaneous_2025_final_results_list.pdf",
+    applyUrl: "https://psc.wb.gov.in/results-portal",
+    pdfUrl: "https://psc.wb.gov.in/Download?name=miscellaneous_2025_final_results_list.pdf",
     crawlHistory: [
       { date: "2025-09-05 11:00", event: "Notice launched on portal." },
       { date: "2026-01-18 17:00", event: "Written examination completed successfully across all district centers." },

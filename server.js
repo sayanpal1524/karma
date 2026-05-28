@@ -1,10 +1,11 @@
 // Karma: West Bengal Government Jobs Scraper Backend Service
-// Built using Express, node-cron and native Node v18+ global fetch.
+// Built using Express, node-cron, cheerio-powered HTML scraper, and native Node v18+ global fetch.
 
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
+const { scrapeWBPSCNotifications, scrapeWBPSCAdvertisements, mergeScrapedData } = require('./scraper');
 
 const app = express();
 const PORT = 3000;
@@ -38,8 +39,8 @@ const VIRTUAL_DISCOVERIES = [
     admitCardDate: "2026-08-10",
     examDate: "2026-09-06",
     resultsDate: null,
-    applyUrl: "https://wbpsc.gov.in/food-si-apply",
-    pdfUrl: "https://wbpsc.gov.in/Download?name=food_si_2026_detailed_not.pdf",
+    applyUrl: "https://psc.wb.gov.in/food-si-apply",
+    pdfUrl: "https://psc.wb.gov.in/Download?name=food_si_2026_detailed_not.pdf",
     crawlHistory: []
   },
   {
@@ -131,17 +132,39 @@ async function probeTargetDomain(name, url) {
 }
 
 // --- AUTOMATED CRON SCHEDULER ---
-// Schedule scans to run automatically twice a day (at 10:30 AM and 5:30 PM, Monday to Saturday)
-// For local demonstration purposes, this cron logs scan indicators every hour
-cron.schedule('0 * * * *', async () => {
-  console.log('\n[CRON_SCANNER] Automated hourly check sequence initiated...');
-  const logs = [];
-  
-  logs.push(await probeTargetDomain('wbpsc.gov.in', 'https://wbpsc.gov.in'));
-  logs.push(await probeTargetDomain('prb.wb.gov.in', 'https://prb.wb.gov.in'));
-  
-  logs.forEach(log => console.log(`[CRON_SCANNER] ${log}`));
-  console.log('[CRON_SCANNER] Check sequence completed. Next scanner schedule in 60 minutes.\n');
+// Schedule real scrapes twice a day: 10:30 AM and 5:30 PM, Monday to Saturday
+cron.schedule('30 10,17 * * 1-6', async () => {
+  console.log('\n[CRON_SCANNER] Scheduled real scrape initiated...');
+
+  try {
+    const [notifications, advertisements] = await Promise.all([
+      scrapeWBPSCNotifications(),
+      scrapeWBPSCAdvertisements()
+    ]);
+
+    console.log(`[CRON_SCANNER] Scraped ${notifications.length} notifications + ${advertisements.length} advertisements from psc.wb.gov.in`);
+
+    const currentJobs = readDatabase();
+    const { newEntries, totalScraped } = mergeScrapedData(currentJobs, notifications, advertisements);
+
+    if (newEntries.length > 0) {
+      const updatedJobs = [...newEntries, ...currentJobs];
+      writeDatabase(updatedJobs);
+      console.log(`[CRON_SCANNER] ${newEntries.length} new entries merged into database.`);
+    } else {
+      console.log(`[CRON_SCANNER] No new entries found. ${totalScraped} items checked, all already tracked.`);
+    }
+  } catch (err) {
+    console.error(`[CRON_SCANNER] Scrape failed: ${err.message}. Will retry at next schedule.`);
+  }
+
+  // Probe other portals (HTTP status only — no parser yet)
+  const otherProbes = await Promise.all([
+    probeTargetDomain('prb.wb.gov.in', 'https://prb.wb.gov.in'),
+  ]);
+  otherProbes.forEach(log => console.log(`[CRON_SCANNER] ${log}`));
+
+  console.log('[CRON_SCANNER] Scheduled scrape cycle completed.\n');
 });
 
 // --- REST API ENDPOINTS ---
@@ -153,60 +176,93 @@ app.get('/api/jobs', (req, res) => {
   res.json(jobs);
 });
 
-// 2. POST /api/scan - forces a system-wide portal scrape
+// 2. POST /api/scan - forces a system-wide portal scrape with real HTML parsing
 app.post('/api/scan', async (req, res) => {
   console.log('[API] Received POST /api/scan request. Initiating force override.');
   const start = Date.now();
   const scanLogs = [];
+  let allNewJobs = [];
 
   scanLogs.push('Initiating live manual system scan... Connecting to West Bengal department portals.');
-  scanLogs.push('Bypassing cache streams. Launching socket crawlers...');
+  scanLogs.push('Launching real HTML scrapers with cheerio parser...');
 
-  // Active domain network crawls
-  const targets = [
-    { name: 'wbpsc.gov.in', url: 'https://wbpsc.gov.in' },
+  // --- Phase 1: Real WBPSC HTML scraping ---
+  let scrapeSuccess = false;
+  try {
+    scanLogs.push('[SCRAPE] Fetching psc.wb.gov.in/notification_announcement.jsp ...');
+    const notifications = await scrapeWBPSCNotifications();
+    scanLogs.push(`[OK] Parsed ${notifications.length} notification entries from WBPSC announcements page.`);
+
+    scanLogs.push('[SCRAPE] Fetching psc.wb.gov.in/advertisement.jsp ...');
+    const advertisements = await scrapeWBPSCAdvertisements();
+    scanLogs.push(`[OK] Parsed ${advertisements.length} advertisement entries from WBPSC advertisements page.`);
+
+    // Merge scraped data into the database
+    const currentJobs = readDatabase();
+    const { newEntries, totalScraped } = mergeScrapedData(currentJobs, notifications, advertisements);
+
+    if (newEntries.length > 0) {
+      // Mark as newly discovered for frontend highlighting
+      newEntries.forEach(entry => { entry.newlyDiscovered = true; });
+      const updatedJobs = [...newEntries, ...currentJobs];
+      writeDatabase(updatedJobs);
+
+      allNewJobs = newEntries;
+      scanLogs.push(`[FOUND] ${newEntries.length} new recruitment notice(s) discovered via live HTML scraping!`);
+      newEntries.forEach(entry => {
+        scanLogs.push(`[SYNC] Added: ${entry.postName} (${entry.noticeNo})`);
+      });
+      scanLogs.push(`[DATABASE] ${newEntries.length} entries merged into persistent cache. Transaction completed.`);
+    } else {
+      scanLogs.push(`[OK] ${totalScraped} items scraped from WBPSC. All entries already tracked in database.`);
+    }
+
+    scrapeSuccess = true;
+  } catch (err) {
+    scanLogs.push(`[CRAWL_RESTRICTED] WBPSC live scrape failed: ${err.message}. Falling back to cached data.`);
+  }
+
+  // --- Phase 2: Probe other portals (HTTP status only) ---
+  const otherTargets = [
     { name: 'prb.wb.gov.in', url: 'https://prb.wb.gov.in' },
     { name: 'www.wbhrb.in', url: 'https://www.wbhrb.in' },
     { name: 'www.wbbpe.org', url: 'https://www.wbbpe.org' },
     { name: 'www.westbengalssc.com', url: 'https://www.westbengalssc.com' }
   ];
 
-  // Run crawls concurrently to minimize network delays
-  const probePromises = targets.map(t => probeTargetDomain(t.name, t.url));
-  const results = await Promise.all(probePromises);
-  results.forEach(log => scanLogs.push(log));
+  const probePromises = otherTargets.map(t => probeTargetDomain(t.name, t.url));
+  const probeResults = await Promise.all(probePromises);
+  probeResults.forEach(log => scanLogs.push(log));
 
-  // Access database and search for discoverable notices
-  const currentJobs = readDatabase();
-  let discoveredJob = null;
+  // --- Phase 3: Fallback to VIRTUAL_DISCOVERIES if scrape failed ---
+  if (!scrapeSuccess) {
+    const currentJobs = readDatabase();
+    let discoveredJob = null;
 
-  // Search for the first undiscovered job in VIRTUAL_DISCOVERIES
-  for (const discovery of VIRTUAL_DISCOVERIES) {
-    const alreadyExists = currentJobs.some(job => job.id === discovery.id);
-    if (!alreadyExists) {
-      discoveredJob = JSON.parse(JSON.stringify(discovery)); // Deep copy
-      break;
+    for (const discovery of VIRTUAL_DISCOVERIES) {
+      const alreadyExists = currentJobs.some(job => job.id === discovery.id);
+      if (!alreadyExists) {
+        discoveredJob = JSON.parse(JSON.stringify(discovery));
+        break;
+      }
     }
-  }
 
-  if (discoveredJob) {
-    const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-    
-    // Add crawler discovery log
-    discoveredJob.crawlHistory.unshift({
-      date: timestamp.slice(0, 16),
-      event: `[LIVE_CRAWLER] Scrape match found on portal. Extracted ${discoveredJob.vacancies} vacancies, salary Pay Level and online application details.`
-    });
+    if (discoveredJob) {
+      const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
+      discoveredJob.crawlHistory.unshift({
+        date: timestamp.slice(0, 16),
+        event: `[FALLBACK] Live scrape failed. Loaded from cached virtual discovery.`
+      });
+      discoveredJob.newlyDiscovered = true;
+      currentJobs.unshift(discoveredJob);
+      writeDatabase(currentJobs);
 
-    // Update database cache
-    currentJobs.unshift(discoveredJob);
-    writeDatabase(currentJobs);
-
-    scanLogs.push(`[FOUND] 1 new recruitment notification detected: ${discoveredJob.postName} (${discoveredJob.noticeNo})!`);
-    scanLogs.push('[SYNC] Merged post qualifications, exam timetables, and direct apply portal links.');
-    scanLogs.push(`[DATABASE] Added notice record successfully to persistent cache database. Transaction completed.`);
-  } else {
-    scanLogs.push('[OK] Scanned all 18 official West Bengal portals. All job entries up to date.');
+      allNewJobs = [discoveredJob];
+      scanLogs.push(`[FOUND] 1 cached notice loaded as fallback: ${discoveredJob.postName} (${discoveredJob.noticeNo})`);
+      scanLogs.push(`[DATABASE] Fallback entry added to persistent cache.`);
+    } else {
+      scanLogs.push('[OK] No new cached entries available. Database is up to date.');
+    }
   }
 
   const duration = ((Date.now() - start) / 1000).toFixed(2);
@@ -215,7 +271,9 @@ app.post('/api/scan', async (req, res) => {
   res.json({
     success: true,
     logs: scanLogs,
-    newJob: discoveredJob
+    newJobs: allNewJobs,
+    // Backwards compatibility: return the first new job as newJob
+    newJob: allNewJobs.length > 0 ? allNewJobs[0] : null
   });
 });
 
