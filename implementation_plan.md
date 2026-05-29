@@ -1,48 +1,211 @@
-# Implementation Plan - Node.js Scraper Server Integration
+# Step-by-Step Refactoring Guide: HTML & PDF Scraper Engine (WBPSC Blueprint)
 
-This plan details the addition of a **Node.js backend scraper server** to the Karma West Bengal Job & Vacancies Tracker. 
-
-To enable authentic, scheduled, and on-demand crawls across the 18 departments of the West Bengal Government, the frontend dashboard will be linked to a local Express server. To ensure the application is highly resilient, the frontend features an **Automatic Hybrid Fallback System**—if the backend server is not running, the frontend gracefully falls back to the fully-featured offline simulation mode so the portal remains entirely functional.
+This guide documents the stepwise architectural blueprint implemented for the West Bengal Public Service Commission (WBPSC) scraper engine. It acts as a refactoring blueprint to systematically implement or upgrade crawler engines for other government departments (e.g., WB Police Recruitment Board - WBPRB, Health Recruitment Board - WBHRB, School Service Commission - WBSSC, etc.).
 
 ---
 
-## Technical Architecture
+## 🏛️ Refactoring Blueprint Overview
 
-We created a robust backend service directly within the workspace at `d:\Projects\karma`. 
+The refactoring transforms basic HTML listing scrapers into high-fidelity metadata extractors by adding **strict vacancy filtering**, **in-memory PDF text extraction**, **multi-format date parsers**, and **fail-safe database cleaning**.
 
-### Key Decisions
-1. **Zero-CORS Restrictions:** The server utilizes lightweight middleware to permit Cross-Origin requests from the client-side (`file:///` or local servers), allowing direct and safe browser communication.
-2. **Resilient HTTP Scraper Strategy:** Since government portals frequently go offline, experience high latency, or employ Cloudflare shields, our parsers set real-world headers (such as custom browser `User-Agent` strings) and gracefully fall back to cached records/simulated updates if a target domain is blocked or unreachable.
-3. **Hybrid Frontend Design:** The frontend `index.js` automatically probes `localhost:3000`. If it receives a response, it switches to **Live Server Mode** (making API calls to fetch data and trigger crawls). If the server is offline, it activates **Local Sandbox Mode** (falling back to offline simulation).
+```
+  [Portal HTML Page]
+          │
+          ▼  (Step 1)
+  ┌───────────────────────┐
+  │ Cheerio Table Scraper │
+  └───────┬───────────────┘
+          │
+          ▼  (Step 2 & 3)
+  ┌───────────────────────┐
+  │ Multi-Level Filters   │ ──► [Excluded Results/Notices]
+  │ (3M Window + Vacancy) │
+  └───────┬───────────────┘
+          │
+          ▼  (Step 4)
+  ┌───────────────────────┐
+  │ Dynamic PDF Fetcher   │
+  │ (Abortable Timeout)   │
+  └───────┬───────────────┘
+          │
+          ▼  (Step 5)
+  ┌───────────────────────┐
+  │  pdf-parse Text engine│
+  └───────┬───────────────┘
+          │
+          ▼  (Step 6)
+  ┌───────────────────────┐
+  │ Regex Date Normalizer │
+  │   (Fuzzy Extractors)  │
+  └───────┬───────────────┘
+          │
+          ▼  (Step 7)
+  ┌───────────────────────┐
+  │ Concurrency & Merger  │
+  │   (Graceful Fallback) │
+  └───────────────────────┘
+```
 
 ---
 
-## File Structure & Changes
+## 🛠️ Step-by-Step Implementation Guide
 
-### [Karma Backend Services]
+### Step 1: Robust HTML Parsing & Cheerio Setup
+*   **Action**: Locate the target department's announcements or listing page and set up Cheerio selectors mapping the HTML table columns.
+*   **Rule**: Convert all relative PDF anchor links (`href`) into absolute URLs using the department base URL.
+*   **Implementation Example**:
+    ```javascript
+    const pdfAnchor = $(cells[1]).find('a');
+    let pdfUrl = href.startsWith('http') ? href : `${BASE_URL}/${href}`;
+    ```
 
-We created three new files in the workspace:
-* `d:\Projects\karma\package.json` - Backend configurations, dependency lists, and run scripts.
-* `d:\Projects\karma\server.js` - Lightweight Express backend. Incorporates routing, JSON database read/write, automated cron scanning scheduler, browser-header mimicking scrapers, and dynamic REST endpoints.
-* `d:\Projects\karma\scrapedJobs.json` - Local database cache holding the live records of scraped government notices.
+### Step 2: Strict Notice Type Filtering (Positive & Negative Keywords)
+*   **Action**: Create a strict filtering helper `isJobVacancyNotice(title)` that separates results/announcements from actual applications.
+*   **Rule**:
+    1.  Maintain a list of **strict negative keywords** (e.g., `result`, `merit list`, `marks`, `shortlist`, `answer key`, `venue`, `verification`, `scrutiny`, `qualified`, `rejected`).
+    2.  Maintain **explicit bypasses** for notice types to retain (e.g., `admit card`, `extension`). Bypassed notices skip negative announcement blocks.
+    3.  Maintain **positive keywords** for standard listings (e.g., `recruitment`, `vacancy`, `advertisement`, `post of`, `apply online`).
+*   **Implementation Blueprint**:
+    ```javascript
+    function isJobVacancyNotice(title) {
+      const titleLower = title.toLowerCase();
+      const isAdmitOrExtension = titleLower.includes('admit card') || titleLower.includes('extension');
+      
+      const negativeKeywords = ['result', 'merit list', 'marks', 'score', 'shortlist', 'qualified', 'rejected', 'answer key', 'personality test', 'postponed', 'corrigendum'];
+      
+      if (!isAdmitOrExtension) {
+        negativeKeywords.push('announcement', 'schedule', 'exam date', 'interview', 'notice regarding');
+      }
+      
+      for (const keyword of negativeKeywords) {
+        if (titleLower.includes(keyword)) return false;
+      }
+      
+      if (isAdmitOrExtension) return true;
+      
+      const positiveKeywords = ['recruitment', 'vacancy', 'advertisement', 'appointment', 'post of', 'apply online'];
+      return positiveKeywords.some(keyword => titleLower.includes(keyword));
+    }
+    ```
 
-We modified two existing files:
-* `d:\Projects\karma\index.js` - Updated to integrate the Hybrid Fallback connection probes, trigger server-side scans via AJAX POST requests, and capture the real-time logging stream from the backend.
-* `d:\Projects\karma\index.html` - Minor tweaks to display server connection state indicators in the console header.
+### Step 3: Dynamic Date Range Restrictions (3 Months Window)
+*   **Action**: Implement an `isWithinLast3Months(dateStr)` filter.
+*   **Rule**: Prevent database bloating by evaluating notices relative to `new Date()`. Keep only those within a rolling 90-day threshold.
+*   **Implementation Blueprint**:
+    ```javascript
+    function isWithinLast3Months(dateStr) {
+      if (!dateStr) return false;
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return false;
+      
+      const now = new Date();
+      now.setHours(0,0,0,0);
+      const threeMonthsAgo = new Date(now);
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      
+      return date >= threeMonthsAgo;
+    }
+    ```
 
----
+### Step 4: Dynamic In-Memory PDF Download & Text Extraction
+*   **Action**: Integrate `"pdf-parse": "^1.1.1"` to parse PDF files.
+*   **Rule**: Fetch the binary PDF from `pdfUrl` with a polite connection timeout (e.g., 6 seconds) using an AbortController to avoid blocking the Express main thread during scraping.
+*   **Implementation Blueprint**:
+    ```javascript
+    async function scrapeDetailsFromPdf(pdfUrl) {
+      if (!pdfUrl) return {};
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      try {
+        const response = await fetch(pdfUrl, { headers: HEADERS, signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const buffer = Buffer.from(await response.arrayBuffer());
+        const pdfData = await pdfParse(buffer);
+        return extractDetailsFromPdfText(pdfData.text);
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return {}; // Graceful empty fallback
+      }
+    }
+    ```
 
-## Verification Plan
+### Step 5: Multi-Format Date Normalizer
+*   **Action**: Build a robust date string extractor `parseExtractedDate(dateStr)`.
+*   **Rule**: Government PDFs frequently write timelines using dots as separators (e.g., `30.04.2026` or `20-05-2026`). Native JS Date parsers evaluate these as `Invalid Date`. Implement regex matchers to convert dot-separated `DD.MM.YYYY` strings into standard ISO `YYYY-MM-DD` strings.
+*   **Implementation Blueprint**:
+    ```javascript
+    function parseExtractedDate(dateStr) {
+      if (!dateStr) return null;
+      let cleaned = dateStr.replace(/\(.*?\)/g, '').replace(/upto.*/i, '').trim();
+      let parsed = new Date(cleaned);
+      if (!isNaN(parsed.getTime())) {
+        return parsed.toISOString().slice(0, 10);
+      }
+      const dmyMatch = cleaned.match(/(\d{1,2})[\.\-\/](\d{1,2})[\.\-\/](\d{4})/);
+      if (dmyMatch) {
+        return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
+      }
+      return null;
+    }
+    ```
 
-### Automated & Manual Verification
-1. **Verification of Server Standup**:
-   - Run `npm start` in the workspace directory.
-   - Verify the server launches on port 3000 and successfully initializes `scrapedJobs.json`.
-2. **Verification of Connection State**:
-   - Load `index.html` in the browser.
-   - Confirm that the terminal scanner logs display `[SYSTEM] Connected successfully to Live Scraper Backend!` when the server is active.
-3. **Verification of Live Scanning**:
-   - Click "Force Portal Scan" with the server active.
-   - Verify that the terminal logs are streamed directly from the Node.js backend.
-   - Check `scrapedJobs.json` to confirm that the new notice is appended.
-   - Re-open/refresh the page to verify that the newly scanned notices persist from the database.
+### Step 6: Regex-Based PDF Metadata Extraction
+*   **Action**: Write safe, non-greedy regular expressions to extract vacancy parameters from PDF text.
+*   **Rule**: Search for key terms (e.g., Pay Scale, Age Limit, Commencement Date, Closing Date, Vacancies) and parse them safely.
+*   **Implementation Blueprint**:
+    ```javascript
+    function extractDetailsFromPdfText(text) {
+      const details = { noticeNo: null, vacancies: null, ageLimit: null, payScale: null, dateStarted: null, dateDeadline: null };
+      
+      // Notice Number
+      const noticeNoMatch = text.match(/(?:advt\.?\s*no\.?|advertisement\s*no\.?)\s*[:\-]?\s*(\d+(?:[\w]*\/\d+)+)/i);
+      if (noticeNoMatch) details.noticeNo = noticeNoMatch[1].trim();
+      
+      // Commencement/Start Date
+      const startMatch = text.match(/commencement\s*(?:of)?\s*(?:submission\s*of)?\s*(?:online)?\s*application[s]?\s*[:\-]?\s*(\d{1,2}[\.\-\/]\d{1,2}[\.\-\/]\d{4})/i);
+      if (startMatch) details.dateStarted = parseExtractedDate(startMatch[1]);
+      
+      // Closing/Deadline Date
+      const endMatch = text.match(/closing\s*date\s*(?:for)?\s*(?:submission\s*of)?\s*(?:online)?\s*application[s]?\s*[:\-]?\s*(\d{1,2}[\.\-\/]\d{1,2}[\.\-\/]\d{4})/i);
+      if (endMatch) details.dateDeadline = parseExtractedDate(endMatch[1]);
+
+      // Age Limit
+      const ageMatch = text.match(/(?:age\s*limit|age)\s*[:\-]?\s*(\d+\s*(?:to|-)\s*\d+\s*years)/i);
+      if (ageMatch) details.ageLimit = ageMatch[1].trim();
+
+      // Pay Scale
+      const payMatch = text.match(/(?:pay\s*scale|pay\s*level)\s*[:\-]?\s*([^\n\r]{10,80})/i);
+      if (payMatch) details.payScale = payMatch[1].trim();
+
+      return details;
+    }
+    ```
+
+### Step 7: Asynchronous Crawl Mapping & Database Merging
+*   **Action**: Combine HTML row parsers with PDF fetch promises concurrently using `Promise.all()`.
+*   **Rule**: 
+    1.  Ensure all scraped fields default gracefully to `null` if the PDF parsing fails, preserving the application schema without crashing the system.
+    2.  Map extracted dates (`dateStarted` -> `datePosted`, `dateDeadline` -> `dateDeadline`).
+    3.  Enforce dynamic status inference (e.g., marking a record status as `closed` if the parsed `dateDeadline` has already passed relative to today).
+*   **Implementation Example**:
+    ```javascript
+    // Merge Logic Blueprint
+    const jobEntry = {
+      id: notif.id,
+      postName: notif.title,
+      noticeNo: notif.noticeNo || 'N/A',
+      vacancies: notif.vacancies || null,
+      ageLimit: notif.ageLimit || null,
+      payScale: notif.payScale || null,
+      status: notif.dateDeadline && notif.dateDeadline < today ? 'closed' : 'open',
+      datePosted: notif.dateStarted || notif.uploadDate,
+      dateDeadline: notif.dateDeadline || null,
+      pdfUrl: notif.pdfUrl
+    };
+    ```
+
+### Step 8: Startup Database Cleaning & Cache Compaction
+*   **Action**: In `server.js`, declare a startup `cleanupDatabase()` function that reads `scrapedJobs.json`, filters out historical entries violating the new 3-month rolling vacancy filter, and rewrites the compacted database on disk.
+*   **Rule**: Protect hand-seeded entries (which do not contain `source: 'scraped'`) and only filter the dynamic crawled cache. This avoids database bloating and accelerates UI loading.

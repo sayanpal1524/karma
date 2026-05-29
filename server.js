@@ -5,7 +5,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
-const { scrapeWBPSCNotifications, scrapeWBPSCAdvertisements, mergeScrapedData } = require('./scraper');
+const { scrapeWBPSCNotifications, scrapeWBPSCAdvertisements, mergeScrapedData, isJobVacancyNotice, isWithinLast3Months } = require('./scraper');
 
 const app = express();
 const PORT = 3000;
@@ -276,6 +276,38 @@ app.post('/api/scan', async (req, res) => {
     newJob: allNewJobs.length > 0 ? allNewJobs[0] : null
   });
 });
+
+// --- DATABASE CLEANUP ON STARTUP ---
+function cleanupDatabase() {
+  console.log('[DATABASE] Initiating database cleanup and filtering...');
+  const currentJobs = readDatabase();
+  const initialCount = currentJobs.length;
+
+  const filteredJobs = currentJobs.filter(job => {
+    // Keep hand-seeded jobs (no source field or source !== 'scraped')
+    if (!job.source || job.source !== 'scraped') {
+      return true;
+    }
+
+    // For scraped jobs, apply the 3-month vacancy/admit/extension filter
+    if (job.dept === 'WBPSC') {
+      const dateToCheck = job.datePosted || job.dateDeadline;
+      return isJobVacancyNotice(job.postName) && isWithinLast3Months(dateToCheck);
+    }
+
+    return true;
+  });
+
+  if (filteredJobs.length !== initialCount) {
+    writeDatabase(filteredJobs);
+    console.log(`[DATABASE] Cleanup complete! Removed ${initialCount - filteredJobs.length} outdated/non-vacancy notices. Database size reduced.`);
+  } else {
+    console.log('[DATABASE] Database is already clean. No records removed.');
+  }
+}
+
+// Run cleanup immediately on server startup
+cleanupDatabase();
 
 // --- SERVER STANDUP ---
 app.listen(PORT, () => {
