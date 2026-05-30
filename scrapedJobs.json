@@ -1,5 +1,243 @@
 [
   {
+    "id": "wbhealth-recruitment-5e064bf3",
+    "dept": "WBHEALTH",
+    "deptFull": "Health & Family Welfare Department, West Bengal",
+    "postName": "Recruitment of MO and Staff Nurse under NACP at Barasat GMCH",
+    "noticeNo": "N/A",
+    "vacancies": null,
+    "ageLimit": null,
+    "qualification": null,
+    "payScale": null,
+    "category": "Health & Medical",
+    "status": "open",
+    "statusText": "Apply Online",
+    "datePosted": "2026-05-25",
+    "dateDeadline": null,
+    "lastActivityDate": "2026-06-09",
+    "milestones": [
+      {
+        "date": "2026-05-25",
+        "title": "Recruitment of MO and Staff Nurse under NACP at Barasat GMCH",
+        "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_884f5d2e-3d39-4b13-9869-fe18c0f6e4fd.pdf"
+      }
+    ],
+    "applyUrl": "https://www.wbhealth.gov.in/",
+    "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_884f5d2e-3d39-4b13-9869-fe18c0f6e4fd.pdf",
+    "source": "scraped",
+    "crawlHistory": [
+      {
+        "date": "2026-05-30 15:04",
+        "event": "[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard."
+      }
+    ],
+    "newlyDiscovered": true
+  },
+  {
+    "id": "wbhealth-recruitment-3e23b024",
+    "dept": "WBHEALTH",
+    "deptFull": "Health & Family Welfare Department, West Bengal",
+    "postName": "Application are Invited for the post of House Staff at Gandhi Memorial Hospital, Kalyani, Nadia",
+    "noticeNo": "N/A",
+    "vacancies": null,
+    "ageLimit": null,
+    "qualification": null,
+    "payScale": null,
+    "category": "Health & Medical",
+    "status": "closed",
+    "statusText": "Closed",
+    "datePosted": "2026-05-21",
+    "dateDeadline": null,
+    "lastActivityDate": "2026-05-28",
+    "milestones": [
+      {
+        "date": "2026-05-21",
+        "title": "Application are Invited for the post of House Staff at Gandhi Memorial Hospital, Kalyani, Nadia",
+        "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_801e160c-e1e9-4d4c-8dab-af219db874ab.pdf"
+      }
+    ],
+    "applyUrl": "https://www.wbhealth.gov.in/",
+    "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_801e160c-e1e9-4d4c-8dab-af219db874ab.pdf",
+    "source": "scraped",
+    "crawlHistory": [
+      {
+        "date": "2026-05-30 15:04",
+        "event": "[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard."
+      }
+    ],
+    "newlyDiscovered": true
+  },
+  {
+    "id": "wbhealth-recruitment-7adbcbb9",
+    "dept": "WBHEALTH",
+    "deptFull": "Health & Family Welfare Department, West Bengal",
+    "postName": "Engagement of House Staff (MBBS) of Suri Sadar Hospital, Birbhum",
+    "noticeNo": "N/A",
+    "vacancies": null,
+    "ageLimit": null,
+    "qualification": null,
+    "payScale": null,
+    "category": "Health & Medical",
+    "status": "open",
+    "statusText": "Apply Online",
+    "datePosted": "2026-05-19",
+    "dateDeadline": null,
+    "lastActivityDate": "2026-06-02",
+    "milestones": [
+      {
+        "date": "2026-05-19",
+        "title": "Engagement of House Staff (MBBS) of Suri Sadar Hospital, Birbhum",
+        "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_eb0135c6-fed9-460e-bb9d-ec6a12f821c8.pdf"
+      }
+    ],
+    "applyUrl": "https://www.wbhealth.gov.in/",
+    "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_eb0135c6-fed9-460e-bb9d-ec6a12f821c8.pdf",
+    "source": "scraped",
+    "crawlHistory": [
+      {
+        "date": "2026-05-30 15:04",
+        "event": "[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard."
+      }
+    ],
+    "newlyDiscovered": true
+  },
+  {
+    "id": "wbhealth-recruitment-553b6d80",
+    "dept": "WBHEALTH",
+    "deptFull": "Health & Family Welfare Department, West Bengal",
+    "postName": "Counselling for House Staff /Junior Residents Recruitment of Diamond Harbour GMC",
+    "noticeNo": "N/A",
+    "vacancies": null,
+    "ageLimit": null,
+    "qualification": null,
+    "payScale": null,
+    "category": "Health & Medical",
+    "status": "closed",
+    "statusText": "Closed",
+    "datePosted": "2026-05-19",
+    "dateDeadline": null,
+    "lastActivityDate": "2026-05-19",
+    "milestones": [
+      {
+        "date": "2026-05-19",
+        "title": "Counselling for House Staff /Junior Residents Recruitment of Diamond Harbour GMC",
+        "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_50afaa69-db40-4122-9a37-bb0fcfb471be.pdf"
+      }
+    ],
+    "applyUrl": "https://www.wbhealth.gov.in/",
+    "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_50afaa69-db40-4122-9a37-bb0fcfb471be.pdf",
+    "source": "scraped",
+    "crawlHistory": [
+      {
+        "date": "2026-05-30 15:04",
+        "event": "[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard."
+      }
+    ],
+    "newlyDiscovered": true
+  },
+  {
+    "id": "wbhealth-recruitment-4fe7f19f",
+    "dept": "WBHEALTH",
+    "deptFull": "Health & Family Welfare Department, West Bengal",
+    "postName": "Applications are Invited for the post of Stipendiary House Staff for Office of the Principal, R.G. Kar Medical College & Hospital",
+    "noticeNo": "tice",
+    "vacancies": null,
+    "ageLimit": null,
+    "qualification": null,
+    "payScale": null,
+    "category": "Health & Medical",
+    "status": "closed",
+    "statusText": "Closed",
+    "datePosted": "2026-05-08",
+    "dateDeadline": null,
+    "lastActivityDate": "2026-05-12",
+    "milestones": [
+      {
+        "date": "2026-05-08",
+        "title": "Applications are Invited for the post of Stipendiary House Staff for Office of the Principal, R.G. Kar Medical College & Hospital",
+        "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_2e32f465-24cc-4e29-bffb-754c9cc92aaf.pdf"
+      }
+    ],
+    "applyUrl": "https://www.wbhealth.gov.in/",
+    "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_2e32f465-24cc-4e29-bffb-754c9cc92aaf.pdf",
+    "source": "scraped",
+    "crawlHistory": [
+      {
+        "date": "2026-05-30 15:04",
+        "event": "[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard."
+      }
+    ],
+    "newlyDiscovered": true
+  },
+  {
+    "id": "wbhealth-recruitment-069ca3f1",
+    "dept": "WBHEALTH",
+    "deptFull": "Health & Family Welfare Department, West Bengal",
+    "postName": "Counselling for Junior Residents for the appointment of Malda Medical College & Hospital",
+    "noticeNo": "N/A",
+    "vacancies": null,
+    "ageLimit": null,
+    "qualification": null,
+    "payScale": null,
+    "category": "Health & Medical",
+    "status": "closed",
+    "statusText": "Closed",
+    "datePosted": "2026-05-08",
+    "dateDeadline": null,
+    "lastActivityDate": "2026-05-08",
+    "milestones": [
+      {
+        "date": "2026-05-08",
+        "title": "Counselling for Junior Residents for the appointment of Malda Medical College & Hospital",
+        "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_65a5809b-12c6-41cc-af25-bf9894e526ac.pdf"
+      }
+    ],
+    "applyUrl": "https://www.wbhealth.gov.in/",
+    "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_65a5809b-12c6-41cc-af25-bf9894e526ac.pdf",
+    "source": "scraped",
+    "crawlHistory": [
+      {
+        "date": "2026-05-30 15:04",
+        "event": "[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard."
+      }
+    ],
+    "newlyDiscovered": true
+  },
+  {
+    "id": "wbhealth-recruitment-2157b81e",
+    "dept": "WBHEALTH",
+    "deptFull": "Health & Family Welfare Department, West Bengal",
+    "postName": "Eligible candidates for computer test for the post of STLS",
+    "noticeNo": "N/A",
+    "vacancies": null,
+    "ageLimit": null,
+    "qualification": null,
+    "payScale": null,
+    "category": "Health & Medical",
+    "status": "closed",
+    "statusText": "Closed",
+    "datePosted": "2026-03-23",
+    "dateDeadline": null,
+    "lastActivityDate": "2026-03-23",
+    "milestones": [
+      {
+        "date": "2026-03-23",
+        "title": "Eligible candidates for computer test for the post of STLS",
+        "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_f500e269-911f-4731-a35a-1a25ad6f7bd6.pdf"
+      }
+    ],
+    "applyUrl": "https://www.wbhealth.gov.in/",
+    "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_f500e269-911f-4731-a35a-1a25ad6f7bd6.pdf",
+    "source": "scraped",
+    "crawlHistory": [
+      {
+        "date": "2026-05-30 15:04",
+        "event": "[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard."
+      }
+    ],
+    "newlyDiscovered": true
+  },
+  {
     "id": "wbpsc-notif-353d31aa",
     "dept": "WBPSC",
     "deptFull": "Public Service Commission, West Bengal",
@@ -14,15 +252,20 @@
     "statusText": "Closed",
     "datePosted": "2026-04-30",
     "dateDeadline": "2026-05-20",
-    "admitCardDate": null,
-    "examDate": null,
-    "resultsDate": null,
+    "lastActivityDate": "2026-04-30",
+    "milestones": [
+      {
+        "date": "2026-04-30",
+        "title": "DETAILED ADVERTISEMENT TO THE POST OF MISCELLANEOUS SERVICES RECRUITMENT EXAMINATION, 2024 ADVT. NO. 13/2024",
+        "pdfUrl": "https://psc.wb.gov.in/Download?param1=Ad_20260425125928_Detailed_Advt_13_2024.pdf&param2=advertisement"
+      }
+    ],
     "applyUrl": "https://psc.wb.gov.in/notification_announcement.jsp",
     "pdfUrl": "https://psc.wb.gov.in/Download?param1=Ad_20260425125928_Detailed_Advt_13_2024.pdf&param2=advertisement",
     "source": "scraped",
     "crawlHistory": [
       {
-        "date": "2026-05-29 00:49",
+        "date": "2026-05-30 14:24",
         "event": "[LIVE_CRAWLER] Scraped from psc.wb.gov.in/notification_announcement.jsp."
       }
     ],
@@ -43,15 +286,20 @@
     "statusText": "Notice Published",
     "datePosted": "2026-05-15",
     "dateDeadline": null,
-    "admitCardDate": null,
-    "examDate": null,
-    "resultsDate": null,
+    "lastActivityDate": "2026-05-15",
+    "milestones": [
+      {
+        "date": "2026-05-15",
+        "title": "IMPORTANT ANNOUNCEMENT REGARDING EXTENSION OF DATE FOR ONLINE APPLICATION TO THE POST OF OF PRINCIPAL IN THE DISTRICT INSTITUTE OF EDUCATION AND TRAINING (ADVT. NO. 05/2026) UNDER THE SCHOOL EDUCATION DEPARTMENT, GOVERNMENT OF WEST BENGAL AGAINST COMMISSION?S ADVT. NO. 05/2026.",
+        "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260515195434_Notice_for_extension_of_Online_Application_date.pdf&param2=advertisement"
+      }
+    ],
     "applyUrl": "https://psc.wb.gov.in/notification_announcement.jsp",
     "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260515195434_Notice_for_extension_of_Online_Application_date.pdf&param2=advertisement",
     "source": "scraped",
     "crawlHistory": [
       {
-        "date": "2026-05-29 00:49",
+        "date": "2026-05-30 14:24",
         "event": "[LIVE_CRAWLER] Scraped from psc.wb.gov.in/notification_announcement.jsp."
       }
     ],
@@ -72,227 +320,23 @@
     "statusText": "Notice Published",
     "datePosted": "2026-04-13",
     "dateDeadline": null,
-    "admitCardDate": null,
-    "examDate": null,
-    "resultsDate": null,
+    "lastActivityDate": "2026-04-13",
+    "milestones": [
+      {
+        "date": "2026-04-13",
+        "title": "INDICATIVE ADVERTISEMENT IN CONNECTION WITH PRINCIPAL IN THE DISTRICT INSTITUTE OF EDUCATION AND TRAINING UNDER THE SCHOOL EDUCATION DEPARTMENT, GOVERNMENT OF WEST BENGAL (ADVT. NO. 05/2026)",
+        "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260413115222_Indicative_Advt_05-2026.pdf&param2=advertisement"
+      }
+    ],
     "applyUrl": "https://psc.wb.gov.in/notification_announcement.jsp",
     "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260413115222_Indicative_Advt_05-2026.pdf&param2=advertisement",
     "source": "scraped",
     "crawlHistory": [
       {
-        "date": "2026-05-29 00:49",
+        "date": "2026-05-30 14:24",
         "event": "[LIVE_CRAWLER] Scraped from psc.wb.gov.in/notification_announcement.jsp."
       }
     ],
     "newlyDiscovered": true
-  },
-  {
-    "id": "wbprb-constable-2026",
-    "dept": "WBPRB",
-    "deptFull": "West Bengal Police Recruitment Board",
-    "postName": "Constable in West Bengal Police - 2026",
-    "noticeNo": "WBP/2026/CONS-04",
-    "vacancies": 8400,
-    "ageLimit": "18 - 30 Years (Upper age relaxed by 5 years for SC/ST and 3 years for OBC)",
-    "qualification": "Passed Madhyamik (10th) examination from West Bengal Board of Secondary Education or its equivalent. Candidate must be fit in Physical Standards (Height, Weight, Chest).",
-    "payScale": "Pay Level 6 (₹22,700 - ₹58,500) plus admissible allowances.",
-    "category": "Police & Defense",
-    "status": "open",
-    "statusText": "Apply Online",
-    "datePosted": "2026-05-01",
-    "dateDeadline": "2026-06-05",
-    "admitCardDate": "2026-07-05",
-    "examDate": "2026-07-26",
-    "resultsDate": null,
-    "applyUrl": "https://prb.wb.gov.in/constable-recruitment-2026",
-    "pdfUrl": "https://prb.wb.gov.in/Download?notice=constable_2026_wbp_detailed.pdf",
-    "crawlHistory": [
-      {
-        "date": "2026-04-28 17:00",
-        "event": "Indicative advertisement scanned on WBP Board site."
-      },
-      {
-        "date": "2026-05-01 00:01",
-        "event": "Detailed notification and online apply link active. Server response normal."
-      }
-    ]
-  },
-  {
-    "id": "wbprb-si-2026",
-    "dept": "WBPRB",
-    "deptFull": "West Bengal Police Recruitment Board",
-    "postName": "Sub-Inspector (SI) / Lady SI in West Bengal Police",
-    "noticeNo": "WBP/2026/SI-05",
-    "vacancies": 460,
-    "ageLimit": "20 - 30 Years",
-    "qualification": "Bachelor's Degree in any discipline from a recognized university or its equivalent. Physical Measurement and Efficiency Test (PET/PMT) clearance required.",
-    "payScale": "Pay Level 10 (₹32,100 - ₹82,900) plus high-risk allowances.",
-    "category": "Police & Defense",
-    "status": "soon",
-    "statusText": "Coming Soon",
-    "datePosted": "2026-05-24",
-    "dateDeadline": "2026-07-15",
-    "admitCardDate": null,
-    "examDate": null,
-    "resultsDate": null,
-    "applyUrl": "https://prb.wb.gov.in/si-recruitment-2026",
-    "pdfUrl": "https://prb.wb.gov.in/Download?notice=si_2026_upcoming_announcement.pdf",
-    "crawlHistory": [
-      {
-        "date": "2026-05-24 12:00",
-        "event": "Draft rules and upcoming SI notification cleared by state Cabinet. Detected entry."
-      }
-    ]
-  },
-  {
-    "id": "wbhrb-nurse-2026",
-    "dept": "WBHRB",
-    "deptFull": "West Bengal Health Recruitment Board",
-    "postName": "Staff Nurse, Grade II (GNM & B.Sc Nursing)",
-    "noticeNo": "HRB/2026/NUR-02",
-    "vacancies": 1200,
-    "ageLimit": "18 - 39 Years",
-    "qualification": "General Nursing and Midwifery (GNM) or B.Sc. (Nursing) passed from any Nursing Training School recognized by West Bengal Nursing Council. Registration as Nurse-Midwife in West Bengal Nursing Council.",
-    "payScale": "Pay Level 9 (₹29,800 - ₹76,800) under WBS (ROPA) 2019, plus uniform, laundry, and risk allowances.",
-    "category": "Health & Medical",
-    "status": "open",
-    "statusText": "Apply Online",
-    "datePosted": "2026-05-15",
-    "dateDeadline": "2026-06-10",
-    "admitCardDate": "2026-06-30",
-    "examDate": "2026-07-12",
-    "resultsDate": null,
-    "applyUrl": "https://www.wbhrb.in/online-application",
-    "pdfUrl": "https://www.wbhrb.in/Download?notice=staff_nurse_grade_II_2026.pdf",
-    "crawlHistory": [
-      {
-        "date": "2026-05-12 18:30",
-        "event": "Portal database changes detected. GNM criteria updated."
-      },
-      {
-        "date": "2026-05-15 10:00",
-        "event": "Official portal registration link for Nurse recruitment declared open."
-      }
-    ]
-  },
-  {
-    "id": "wbhrb-mo-2026",
-    "dept": "WBHRB",
-    "deptFull": "West Bengal Health Recruitment Board",
-    "postName": "Medical Officer (Specialist) & GDMO",
-    "noticeNo": "HRB/2026/MO-01",
-    "vacancies": 680,
-    "ageLimit": "36 Years for General, 40 Years for Specialists",
-    "qualification": "MBBS degree included in the First or Second Schedule or Part-II of the Third Schedule of IMC Act. Specialization PG Degree for MO (Specialist). Registration in West Bengal Medical Council.",
-    "payScale": "Pay Level 16 (₹56,100 - ₹1,44,300) plus Non-Practicing Allowance (NPA) of 20%.",
-    "category": "Health & Medical",
-    "status": "soon",
-    "statusText": "Coming Soon",
-    "datePosted": "2026-05-24",
-    "dateDeadline": "2026-07-01",
-    "admitCardDate": null,
-    "examDate": null,
-    "resultsDate": null,
-    "applyUrl": "https://www.wbhrb.in/mo-portal",
-    "pdfUrl": "https://www.wbhrb.in/Download?notice=mo_specialist_gdmo_indicative.pdf",
-    "crawlHistory": [
-      {
-        "date": "2026-05-24 16:00",
-        "event": "Health Department requisition list released. Anticipated release within 3 weeks."
-      }
-    ]
-  },
-  {
-    "id": "wbbpe-primary-2026",
-    "dept": "WBBPE",
-    "deptFull": "West Bengal Board of Primary Education",
-    "postName": "Primary School Teacher Recruitment Examination 2026",
-    "noticeNo": "BPE/2026/TET-RE-08",
-    "vacancies": 4200,
-    "ageLimit": "18 - 40 Years",
-    "qualification": "Higher Secondary (12th) with at least 50% marks and 2-year Diploma in Elementary Education (D.El.Ed), OR Bachelor's degree and D.El.Ed. Cleared WB TET (Teacher Eligibility Test).",
-    "payScale": "Basic Pay: ₹28,900 plus DA, HRA, and school allowance.",
-    "category": "Education & Teaching",
-    "status": "open",
-    "statusText": "Apply Online",
-    "datePosted": "2026-05-05",
-    "dateDeadline": "2026-06-08",
-    "admitCardDate": "2026-07-10",
-    "examDate": "2026-08-02",
-    "resultsDate": null,
-    "applyUrl": "https://www.wbbpe.org/teacher-recruitment-portal",
-    "pdfUrl": "https://www.wbbpe.org/Download?notice=primary_recruitment_2026_official.pdf",
-    "crawlHistory": [
-      {
-        "date": "2026-05-03 12:00",
-        "event": "High Court order alignment checks performed by Board."
-      },
-      {
-        "date": "2026-05-05 10:30",
-        "event": "Application registration portal declared live for TET 2022/2024 cleared candidates."
-      }
-    ]
-  },
-  {
-    "id": "wbssc-slst-2026",
-    "dept": "WBSSC",
-    "deptFull": "West Bengal School Service Commission",
-    "postName": "Assistant Teacher Recruitment (IX-XII) - 1st SLST",
-    "noticeNo": "SSC/2026/SLST-01",
-    "vacancies": 2800,
-    "ageLimit": "21 - 40 Years",
-    "qualification": "Graduate/Post Graduate from recognized university with at least 50% marks in respective school subject and Bachelor of Education (B.Ed.) from NCTE recognized institution.",
-    "payScale": "Pay Level 11 (₹33,400 - ₹86,100) for Post-Graduate Teachers.",
-    "category": "Education & Teaching",
-    "status": "soon",
-    "statusText": "Coming Soon",
-    "datePosted": "2026-05-24",
-    "dateDeadline": "2026-07-31",
-    "admitCardDate": null,
-    "examDate": null,
-    "resultsDate": null,
-    "applyUrl": "https://www.westbengalssc.com/slst-apply",
-    "pdfUrl": "https://www.westbengalssc.com/Download?notice=slst_2026_draft_regulations.pdf",
-    "crawlHistory": [
-      {
-        "date": "2026-05-24 15:45",
-        "event": "Draft guidelines for SLST subject exams scanned on WBSSC homepage. Crawled successfully."
-      }
-    ]
-  },
-  {
-    "id": "wbjeeb-anm-2026",
-    "dept": "WBJEEB",
-    "deptFull": "West Bengal Joint Entrance Examinations Board",
-    "postName": "Joint Entrance for ANM(R) & GNM-2026",
-    "noticeNo": "JEEB/2026/ANM-GNM-03",
-    "vacancies": 1150,
-    "ageLimit": "17 - 35 Years",
-    "qualification": "Passed Higher Secondary (10+2) from West Bengal Council of Higher Secondary Education or its equivalent with English as one of the subjects, securing at least 40% aggregate marks.",
-    "payScale": "Admission Entrance Exam for state government hospital training seats with stipend.",
-    "category": "Technical & Medical",
-    "status": "closed",
-    "statusText": "Closed",
-    "datePosted": "2026-02-10",
-    "dateDeadline": "2026-03-20",
-    "admitCardDate": "2026-05-02",
-    "examDate": "2026-05-17",
-    "resultsDate": null,
-    "applyUrl": "https://wbjeeb.nic.in/anm-gnm",
-    "pdfUrl": "https://wbjeeb.nic.in/Download?notice=anm_gnm_2026_information_bulletin.pdf",
-    "crawlHistory": [
-      {
-        "date": "2026-02-10 10:00",
-        "event": "Information Bulletin uploaded. Registrations opened."
-      },
-      {
-        "date": "2026-03-20 23:59",
-        "event": "Application and payment window closed."
-      },
-      {
-        "date": "2026-05-17 14:00",
-        "event": "ANM & GNM-2026 entrance exam successfully concluded. Scraper tracking answer keys."
-      }
-    ]
   }
 ]

@@ -5,7 +5,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
-const { scrapeWBPSCNotifications, scrapeWBPSCAdvertisements, mergeScrapedData, isJobVacancyNotice, isWithinLast3Months } = require('./scraper');
+const { scrapeWBPSCNotifications, scrapeWBPSCAdvertisements, scrapeWBPRBRecruitments, scrapeWBHEALTHRecruitments, mergeScrapedData, isJobVacancyNotice, isWithinLast3Months } = require('./scraper');
 
 const app = express();
 const PORT = 3000;
@@ -137,15 +137,17 @@ cron.schedule('30 10,17 * * 1-6', async () => {
   console.log('\n[CRON_SCANNER] Scheduled real scrape initiated...');
 
   try {
-    const [notifications, advertisements] = await Promise.all([
+    const [notifications, advertisements, wbprbNotices, wbhealthNotices] = await Promise.all([
       scrapeWBPSCNotifications(),
-      scrapeWBPSCAdvertisements()
+      scrapeWBPSCAdvertisements(),
+      scrapeWBPRBRecruitments(),
+      scrapeWBHEALTHRecruitments()
     ]);
 
-    console.log(`[CRON_SCANNER] Scraped ${notifications.length} notifications + ${advertisements.length} advertisements from psc.wb.gov.in`);
+    console.log(`[CRON_SCANNER] Scraped ${notifications.length} notifications + ${advertisements.length} advertisements from psc.wb.gov.in, ${wbprbNotices.length} notices from prb.wb.gov.in, and ${wbhealthNotices.length} notices from wbhealth.gov.in`);
 
     const currentJobs = readDatabase();
-    const { newEntries, totalScraped } = mergeScrapedData(currentJobs, notifications, advertisements);
+    const { newEntries, totalScraped } = mergeScrapedData(currentJobs, notifications, advertisements, wbprbNotices, wbhealthNotices);
 
     if (newEntries.length > 0) {
       const updatedJobs = [...newEntries, ...currentJobs];
@@ -160,7 +162,7 @@ cron.schedule('30 10,17 * * 1-6', async () => {
 
   // Probe other portals (HTTP status only — no parser yet)
   const otherProbes = await Promise.all([
-    probeTargetDomain('prb.wb.gov.in', 'https://prb.wb.gov.in'),
+    probeTargetDomain('www.wbhealth.gov.in', 'https://www.wbhealth.gov.in/'),
   ]);
   otherProbes.forEach(log => console.log(`[CRON_SCANNER] ${log}`));
 
@@ -186,7 +188,7 @@ app.post('/api/scan', async (req, res) => {
   scanLogs.push('Initiating live manual system scan... Connecting to West Bengal department portals.');
   scanLogs.push('Launching real HTML scrapers with cheerio parser...');
 
-  // --- Phase 1: Real WBPSC HTML scraping ---
+  // --- Phase 1: Real HTML scraping ---
   let scrapeSuccess = false;
   try {
     scanLogs.push('[SCRAPE] Fetching psc.wb.gov.in/notification_announcement.jsp ...');
@@ -197,9 +199,17 @@ app.post('/api/scan', async (req, res) => {
     const advertisements = await scrapeWBPSCAdvertisements();
     scanLogs.push(`[OK] Parsed ${advertisements.length} advertisement entries from WBPSC advertisements page.`);
 
+    scanLogs.push('[SCRAPE] Fetching prb.wb.gov.in/recruitments ...');
+    const wbprbNotices = await scrapeWBPRBRecruitments();
+    scanLogs.push(`[OK] Parsed ${wbprbNotices.length} notification/recruitment entries from WBPRB portal.`);
+
+    scanLogs.push('[SCRAPE] Fetching wbhealth.gov.in/MainPhaseTwo/NoticeBoard ...');
+    const wbhealthNotices = await scrapeWBHEALTHRecruitments();
+    scanLogs.push(`[OK] Parsed ${wbhealthNotices.length} recruitment entries from WBHEALTH portal.`);
+
     // Merge scraped data into the database
     const currentJobs = readDatabase();
-    const { newEntries, totalScraped } = mergeScrapedData(currentJobs, notifications, advertisements);
+    const { newEntries, totalScraped } = mergeScrapedData(currentJobs, notifications, advertisements, wbprbNotices, wbhealthNotices);
 
     if (newEntries.length > 0) {
       // Mark as newly discovered for frontend highlighting
@@ -214,18 +224,17 @@ app.post('/api/scan', async (req, res) => {
       });
       scanLogs.push(`[DATABASE] ${newEntries.length} entries merged into persistent cache. Transaction completed.`);
     } else {
-      scanLogs.push(`[OK] ${totalScraped} items scraped from WBPSC. All entries already tracked in database.`);
+      scanLogs.push(`[OK] ${totalScraped} items scraped from WBPSC & WBPRB. All entries already tracked in database.`);
     }
 
     scrapeSuccess = true;
   } catch (err) {
-    scanLogs.push(`[CRAWL_RESTRICTED] WBPSC live scrape failed: ${err.message}. Falling back to cached data.`);
+    scanLogs.push(`[CRAWL_RESTRICTED] Live scrape failed: ${err.message}. Falling back to cached data.`);
   }
 
   // --- Phase 2: Probe other portals (HTTP status only) ---
   const otherTargets = [
-    { name: 'prb.wb.gov.in', url: 'https://prb.wb.gov.in' },
-    { name: 'www.wbhrb.in', url: 'https://www.wbhrb.in' },
+    { name: 'www.wbhealth.gov.in', url: 'https://www.wbhealth.gov.in/' },
     { name: 'www.wbbpe.org', url: 'https://www.wbbpe.org' },
     { name: 'www.westbengalssc.com', url: 'https://www.westbengalssc.com' }
   ];
@@ -290,8 +299,8 @@ function cleanupDatabase() {
     }
 
     // For scraped jobs, apply the 3-month vacancy/admit/extension filter
-    if (job.dept === 'WBPSC') {
-      const dateToCheck = job.datePosted || job.dateDeadline;
+    if (job.dept === 'WBPSC' || job.dept === 'WBPRB' || job.dept === 'WBHEALTH') {
+      const dateToCheck = job.datePosted || job.dateDeadline || job.lastActivityDate;
       return isJobVacancyNotice(job.postName) && isWithinLast3Months(dateToCheck);
     }
 

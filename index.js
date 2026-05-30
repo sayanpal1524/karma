@@ -361,10 +361,29 @@
       const badge = block.querySelector(".cat-badge");
       if (badge) badge.innerText = count + (count === 1 ? " notice" : " notices");
 
-      if (count > 0) {
-        block.style.display = "block";
-      } else {
-        block.style.display = "none";
+      // Keep category blocks visible and display an elegant empty state panel inside any department that does not have active live-scraped jobs.
+      block.style.display = "block";
+
+      if (count === 0) {
+        const container = categoryContainers[cat];
+        if (container) {
+          const catIcons = {
+            "General Administration": "🏛️",
+            "Police & Defense": "🛡️",
+            "Health & Medical": "🏥",
+            "Education & Teaching": "🎓",
+            "Clerical": "📂",
+            "Technical & Medical": "⚙️"
+          };
+          const icon = catIcons[cat] || "📡";
+          container.innerHTML = `
+            <div class="dept-empty-state">
+              <div class="dept-empty-icon">${icon}</div>
+              <div class="dept-empty-title">No Active Recruitments</div>
+              <div class="dept-empty-text">No active recruitment drives or notices found for this department in the last 3 months.</div>
+            </div>
+          `;
+        }
       }
     });
 
@@ -497,37 +516,70 @@
     const timelineContainer = document.getElementById("drawer-timeline-container");
     timelineContainer.innerHTML = "";
     
-    const timelineEvents = [
-      { label: "Applications Opened", date: job.datePosted, desc: "Online application form activated in the portal." },
-      { label: "Application Deadline", date: job.dateDeadline, desc: "Registration portal closing threshold." },
-      { label: "Admit Card Released", date: job.admitCardDate, desc: "Admit download dashboard links released." },
-      { label: "Exam Date Scheduled", date: job.examDate, desc: "Written/Skill testing checks carried out in districts." }
-    ];
-
-    const todayStr = "2026-05-24"; // Timeline snapshot date
-
-    timelineEvents.forEach(evt => {
-      if (!evt.date) return;
+    if (job.milestones && job.milestones.length > 0) {
+      // Sort milestones ascending for chronological timeline flow
+      const chronologicalMilestones = [...job.milestones].sort((a, b) => new Date(a.date) - new Date(b.date));
+      const todayStr = new Date().toISOString().slice(0, 10);
       
-      const item = document.createElement("div");
-      item.className = "timeline-item";
-      
-      const isCompleted = evt.date < todayStr;
-      const isActive = evt.date === todayStr || (evt.label === "Application Deadline" && job.status === "open");
+      chronologicalMilestones.forEach((milestone, idx) => {
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        
+        const isCompleted = milestone.date < todayStr;
+        const isActive = milestone.date === todayStr || (idx === chronologicalMilestones.length - 1 && milestone.date >= todayStr);
 
-      if (isCompleted) item.classList.add("completed");
-      else if (isActive) item.classList.add("active");
+        if (isCompleted) item.classList.add("completed");
+        else if (isActive) item.classList.add("active");
 
-      item.innerHTML = `
-        <div class="timeline-dot"></div>
-        <div class="timeline-info">
-          <span class="timeline-lbl">${evt.label}</span>
-          <span class="timeline-date">${formatDate(evt.date)}</span>
-        </div>
-        <span class="timeline-desc">${evt.desc}</span>
-      `;
-      timelineContainer.appendChild(item);
-    });
+        item.innerHTML = `
+          <div class="timeline-dot"></div>
+          <div class="timeline-info">
+            <span class="timeline-lbl">${milestone.title}</span>
+            <span class="timeline-date">${formatDate(milestone.date)}</span>
+          </div>
+          ${milestone.pdfUrl ? `
+            <span class="timeline-desc">
+              <a href="${milestone.pdfUrl}" target="_blank" class="timeline-pdf-link">
+                📜 View Notice PDF
+              </a>
+            </span>
+          ` : ""}
+        `;
+        timelineContainer.appendChild(item);
+      });
+    } else {
+      const timelineEvents = [
+        { label: "Applications Opened", date: job.datePosted, desc: "Online application form activated in the portal." },
+        { label: "Application Deadline", date: job.dateDeadline, desc: "Registration portal closing threshold." },
+        { label: "Admit Card Released", date: job.admitCardDate, desc: "Admit download dashboard links released." },
+        { label: "Exam Date Scheduled", date: job.examDate, desc: "Written/Skill testing checks carried out in districts." }
+      ];
+
+      const todayStr = new Date().toISOString().slice(0, 10);
+
+      timelineEvents.forEach(evt => {
+        if (!evt.date) return;
+        
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        
+        const isCompleted = evt.date < todayStr;
+        const isActive = evt.date === todayStr || (evt.label === "Application Deadline" && job.status === "open");
+
+        if (isCompleted) item.classList.add("completed");
+        else if (isActive) item.classList.add("active");
+
+        item.innerHTML = `
+          <div class="timeline-dot"></div>
+          <div class="timeline-info">
+            <span class="timeline-lbl">${evt.label}</span>
+            <span class="timeline-date">${formatDate(evt.date)}</span>
+          </div>
+          <span class="timeline-desc">${evt.desc}</span>
+        `;
+        timelineContainer.appendChild(item);
+      });
+    }
 
     // Render Crawler logs table dynamically
     const logsBody = document.getElementById("drawer-logs-body");
@@ -589,8 +641,8 @@
       { text: "[PSC] Scan complete: verified notice 13/2026 Clerkship active.", type: "success" },
       { text: "Autopilot scan checks scheduled... connecting to prb.wb.gov.in", type: "info" },
       { text: "[PRB] Scan complete: verified constable 04/2026 portal responsive.", type: "success" },
-      { text: "Executing secure handshakes with wbhrb.in ...", type: "info" },
-      { text: "[HRB] Checked Staff Nurse registry: Grade II active, verified 1200 vacancies.", type: "success" },
+      { text: "Executing secure handshakes with wbhealth.gov.in ...", type: "info" },
+      { text: "[WBHEALTH] Checked Health notices registry: General Duty Medical Officer updates verified.", type: "success" },
       { text: "Automatic sync successful. Next checkpoint in 60s.", type: "stamp" }
     ];
 
@@ -727,7 +779,7 @@
     const scanSteps = [
       { text: "[1/5] Scanning: psc.wb.gov.in...", delay: 600, type: "info" },
       { text: "[2/5] Scanning: prb.wb.gov.in...", delay: 1200, type: "info" },
-      { text: "[3/5] Scanning: www.wbhrb.in...", delay: 1800, type: "info" },
+      { text: "[3/5] Scanning: www.wbhealth.gov.in...", delay: 1800, type: "info" },
       { text: "[4/5] Scanning: www.wbbpe.org...", delay: 2400, type: "info" },
       { text: "[5/5] Scanning: www.westbengalssc.com...", delay: 3000, type: "info" }
     ];

@@ -6,6 +6,8 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const cheerio = require('cheerio');
 const pdfParse = require('pdf-parse');
+const https = require('https');
+const crypto = require('crypto');
 
 const WBPSC_BASE_URL = 'https://psc.wb.gov.in';
 
@@ -18,32 +20,102 @@ const SCRAPER_HEADERS = {
 
 const FETCH_TIMEOUT_MS = 10000; // 10-second timeout — be polite to government servers
 
-// ---------------------------------------------------------------------------
-// Helper: fetch a page with timeout and return the HTML body as a string
-// ---------------------------------------------------------------------------
-async function fetchPage(url) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+// Create a custom HTTPS agent that ignores cert errors and allows legacy SSL renegotiation
+const secureAgent = new https.Agent({
+  rejectUnauthorized: false,
+  secureOptions: crypto.constants.SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION
+});
 
-  try {
-    const response = await fetch(url, {
+// ---------------------------------------------------------------------------
+// Helper: fetch a page with legacy SSL renegotiation support
+// ---------------------------------------------------------------------------
+function fetchPage(url, timeoutMs = FETCH_TIMEOUT_MS) {
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const options = {
       method: 'GET',
       headers: SCRAPER_HEADERS,
-      signal: controller.signal
+      agent: secureAgent,
+      timeout: timeoutMs
+    };
+
+    const req = https.request(url, options, (res) => {
+      // Handle redirect
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        const redirectUrl = res.headers.location.startsWith('http') ? res.headers.location : `${parsedUrl.origin}${res.headers.location}`;
+        return fetchPage(redirectUrl, timeoutMs).then(resolve).catch(reject);
+      }
+
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        return reject(new Error(`HTTP ${res.statusCode} from ${url}`));
+      }
+
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        resolve(data);
+      });
     });
 
-    clearTimeout(timeoutId);
+    req.on('error', (err) => {
+      reject(new Error(`Failed to fetch ${url}: ${err.message}`));
+    });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} from ${url}`);
-    }
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error(`Failed to fetch ${url}: Timeout`));
+    });
 
-    return await response.text();
-  } catch (err) {
-    clearTimeout(timeoutId);
-    const reason = err.name === 'AbortError' ? 'Timeout' : err.message;
-    throw new Error(`Failed to fetch ${url}: ${reason}`);
-  }
+    req.end();
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Helper: fetch binary buffer with legacy SSL renegotiation support
+// ---------------------------------------------------------------------------
+function fetchPageBuffer(url, timeoutMs = FETCH_TIMEOUT_MS) {
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const options = {
+      method: 'GET',
+      headers: SCRAPER_HEADERS,
+      agent: secureAgent,
+      timeout: timeoutMs
+    };
+
+    const req = https.request(url, options, (res) => {
+      // Handle redirect
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        const redirectUrl = res.headers.location.startsWith('http') ? res.headers.location : `${parsedUrl.origin}${res.headers.location}`;
+        return fetchPageBuffer(redirectUrl, timeoutMs).then(resolve).catch(reject);
+      }
+
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        return reject(new Error(`HTTP ${res.statusCode} from ${url}`));
+      }
+
+      const chunks = [];
+      res.on('data', (chunk) => {
+        chunks.push(chunk);
+      });
+      res.on('end', () => {
+        resolve(Buffer.concat(chunks));
+      });
+    });
+
+    req.on('error', (err) => {
+      reject(new Error(`Failed to fetch ${url}: ${err.message}`));
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error(`Failed to fetch ${url}: Timeout`));
+    });
+
+    req.end();
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -130,24 +202,8 @@ function isWithinLast3Months(dateStr) {
 async function scrapeDetailsFromPdf(pdfUrl) {
   if (!pdfUrl) return {};
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 6000); // 6-second download timeout
-
   try {
-    const response = await fetch(pdfUrl, {
-      method: 'GET',
-      headers: SCRAPER_HEADERS,
-      signal: controller.signal
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = await fetchPageBuffer(pdfUrl, 8000);
     const pdfData = await pdfParse(buffer);
     
     if (!pdfData || !pdfData.text) {
@@ -157,9 +213,7 @@ async function scrapeDetailsFromPdf(pdfUrl) {
     console.log(`[PDF_CRAWLER] PDF fetched and parsed successfully (${pdfData.text.length} chars).`);
     return extractDetailsFromPdfText(pdfData.text);
   } catch (err) {
-    clearTimeout(timeoutId);
-    const reason = err.name === 'AbortError' ? 'Timeout (6s)' : err.message;
-    console.error(`[PDF_CRAWLER] Failed to parse PDF from ${pdfUrl}: ${reason}`);
+    console.error(`[PDF_CRAWLER] Failed to parse PDF from ${pdfUrl}: ${err.message}`);
     return {};
   }
 }
@@ -171,19 +225,20 @@ function parseExtractedDate(dateStr) {
   if (!dateStr) return null;
   let cleaned = dateStr.replace(/\(.*?\)/g, '').replace(/upto.*/i, '').trim();
 
-  let parsed = new Date(cleaned);
-  if (!isNaN(parsed.getTime())) {
-    const year = parsed.getFullYear();
-    const month = String(parsed.getMonth() + 1).padStart(2, '0');
-    const day = String(parsed.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
+  // Prioritize Indian DD-MM-YYYY / DD.MM.YYYY formats to prevent native JS Date parsing as MM-DD-YYYY
   const dmyMatch = cleaned.match(/(\d{1,2})[\.\-\/](\d{1,2})[\.\-\/](\d{4})/);
   if (dmyMatch) {
     const day = dmyMatch[1].padStart(2, '0');
     const month = dmyMatch[2].padStart(2, '0');
     const year = dmyMatch[3];
+    return `${year}-${month}-${day}`;
+  }
+
+  let parsed = new Date(cleaned);
+  if (!isNaN(parsed.getTime())) {
+    const year = parsed.getFullYear();
+    const month = String(parsed.getMonth() + 1).padStart(2, '0');
+    const day = String(parsed.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
@@ -210,6 +265,12 @@ function extractDetailsFromPdfText(text) {
   const noticeNoMatch = text.match(/(?:advt\.?\s*no\.?|advertisement\s*no\.?)\s*[:\-]?\s*(\d+(?:[\[\]\(\)\w]*\/\d+)+)/i);
   if (noticeNoMatch) {
     details.noticeNo = noticeNoMatch[1].trim();
+  }
+  if (!details.noticeNo) {
+    const fallbackNoticeMatch = text.match(/(?:notice\s*no\.?|ref\s*no\.?|advertisement\s*no\.?|advt\s*no\.?)\s*[:\-]?\s*([a-z0-9\-_\/\[\]]+)/i);
+    if (fallbackNoticeMatch) {
+      details.noticeNo = fallbackNoticeMatch[1].trim();
+    }
   }
 
   // 2. Vacancies
@@ -447,6 +508,280 @@ async function scrapeWBPSCAdvertisements() {
 }
 
 // ---------------------------------------------------------------------------
+// Scrape WBPRB Recruitments page
+// URL: https://prb.wb.gov.in/recruitments
+// ---------------------------------------------------------------------------
+async function scrapeWBPRBRecruitments() {
+  const rootUrl = 'https://prb.wb.gov.in/recruitments';
+  console.log(`[WBPRB_CRAWLER] Fetching root recruitment listing: ${rootUrl}`);
+  
+  try {
+    const html = await fetchPage(rootUrl);
+    const $ = cheerio.load(html);
+
+    const drives = [];
+
+    // Each recruitment drive is in a <div class="single-job-post">
+    $('div.single-job-post').each((_, element) => {
+      const titleText = $(element).find('.job-title h3').text().replace(/\s+/g, ' ').trim();
+      if (!titleText) return;
+
+      const detailsAnchor = $(element).find('.apply-btn a');
+      if (detailsAnchor.length === 0) return;
+
+      let detailsUrl = detailsAnchor.attr('href');
+      if (detailsUrl) {
+        detailsUrl = detailsUrl.startsWith('http') ? detailsUrl : `https://prb.wb.gov.in${detailsUrl}`;
+        drives.push({
+          driveTitle: titleText,
+          detailsUrl: detailsUrl
+        });
+      }
+    });
+
+    console.log(`[WBPRB_CRAWLER] Discovered ${drives.length} active recruitment drives.`);
+
+    const results = [];
+    const today = new Date().toISOString().slice(0, 10);
+
+    // For each drive, fetch the details page to parse individual sub-notices
+    for (const drive of drives) {
+      try {
+        console.log(`[WBPRB_CRAWLER] Fetching details for drive: "${drive.driveTitle}" (${drive.detailsUrl})`);
+        const detailsHtml = await fetchPage(drive.detailsUrl);
+        const $details = cheerio.load(detailsHtml);
+
+        // Find the notices table
+        const rows = $details('table.table tbody tr, table.table tr');
+        if (rows.length === 0) {
+          console.log(`[WBPRB_CRAWLER] No notices table found for: ${drive.driveTitle}`);
+          continue;
+        }
+
+        const milestones = [];
+        let driveHasRecentMilestone = false;
+        let originalDatePosted = null;
+
+        rows.each((_, row) => {
+          const cells = $details(row).find('td');
+          if (cells.length < 4) return; // Skip headers or malformed rows
+
+          const dateRaw = $details(cells[1]).text().trim();
+          const noticeTitle = $details(cells[2]).text().replace(/\s+/g, ' ').trim();
+          const actionAnchor = $details(cells[3]).find('a');
+          let actionUrl = actionAnchor.attr('href');
+
+          if (!noticeTitle || !dateRaw) return;
+
+          // Normalise date
+          const uploadDate = parseExtractedDate(dateRaw);
+          if (!uploadDate) return;
+
+          // Save original date posted as the oldest milestone date or first notice
+          if (!originalDatePosted || uploadDate < originalDatePosted) {
+            originalDatePosted = uploadDate;
+          }
+
+          // Check if this sub-notice milestone is within the 3-month window
+          const isRecent = isWithinLast3Months(uploadDate);
+          if (isRecent) {
+            driveHasRecentMilestone = true;
+          }
+
+          if (actionUrl) {
+            actionUrl = actionUrl.startsWith('http') ? actionUrl : `https://prb.wb.gov.in${actionUrl}`;
+          }
+
+          milestones.push({
+            date: uploadDate,
+            title: noticeTitle,
+            pdfUrl: actionUrl || null
+          });
+        });
+
+        // Only keep the recruitment drive if it has AT LEAST ONE milestone within the 3-month rolling window!
+        if (driveHasRecentMilestone && milestones.length > 0) {
+          // Sort milestones descending (latest first)
+          milestones.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+          const latestMilestone = milestones[0];
+
+          // Infer status from the latest milestone
+          let status = 'open';
+          let statusText = 'Apply Online';
+          
+          const titleLower = latestMilestone.title.toLowerCase();
+          const isAdmit = titleLower.includes('admit card') || titleLower.includes('call letter');
+          const isExtension = titleLower.includes('extension');
+          const isResult = titleLower.includes('result') || titleLower.includes('merit list') || titleLower.includes('shortlist');
+
+          if (isAdmit) {
+            status = 'admit';
+            statusText = 'Admit Card Out';
+          } else if (isExtension) {
+            status = 'open';
+            statusText = 'Deadline Extended';
+          } else if (isResult) {
+            status = 'results';
+            statusText = 'Results Declared';
+          } else {
+            status = 'open';
+            statusText = 'Active';
+          }
+
+          // Generate absolute applyUrl or default to drive details page
+          const applyUrl = drive.detailsUrl;
+
+          // We'll also try to parse details from the main/first notice PDF if it exists
+          let pdfUrl = null;
+          const mainVacancyNotice = milestones.find(m => 
+            m.title.toLowerCase().includes('information to applicants') || 
+            m.title.toLowerCase().includes('detailed advertisement') || 
+            m.title.toLowerCase().includes('notice')
+          );
+          if (mainVacancyNotice) {
+            pdfUrl = mainVacancyNotice.pdfUrl;
+          } else {
+            pdfUrl = latestMilestone.pdfUrl;
+          }
+
+          results.push({
+            title: drive.driveTitle,
+            postName: drive.driveTitle,
+            datePosted: originalDatePosted || today,
+            lastActivityDate: latestMilestone.date,
+            status: status,
+            statusText: statusText,
+            applyUrl: applyUrl,
+            pdfUrl: pdfUrl,
+            milestones: milestones,
+            source: 'recruitment',
+            id: generateId('wbprb-drive', drive.driveTitle)
+          });
+        }
+      } catch (err) {
+        console.error(`[WBPRB_CRAWLER] Failed to scrape drive details page: ${err.message}`);
+      }
+    }
+
+    // Concurrently enrich recruitment vacancy notices by fetching and parsing the PDF
+    const scrapePromises = results.map(async (item) => {
+      if (item.pdfUrl && item.pdfUrl.endsWith('.pdf')) {
+        console.log(`[WBPRB_CRAWLER] Fetching PDF to enrich details: ${item.title.slice(0, 50)}...`);
+        const pdfDetails = await scrapeDetailsFromPdf(item.pdfUrl);
+        return { ...item, ...pdfDetails };
+      }
+      return item;
+    });
+
+    return await Promise.all(scrapePromises);
+  } catch (err) {
+    console.error(`[WBPRB_CRAWLER] Main listing page scrape failed: ${err.message}`);
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Scrape WBHEALTH Recruitments page
+// URL: https://www.wbhealth.gov.in/MainPhaseTwo/NoticeBoard
+// ---------------------------------------------------------------------------
+async function scrapeWBHEALTHRecruitments() {
+  const url = 'https://www.wbhealth.gov.in/MainPhaseTwo/NoticeBoard';
+  console.log(`[WBHEALTH_CRAWLER] Fetching NoticeBoard component: ${url}`);
+  
+  try {
+    const html = await fetchPage(url);
+    const $ = cheerio.load(html);
+    const results = [];
+
+    $('#nav-recruitment-Lists div.single').each((_, row) => {
+      const titleAnchor = $(row).find('a.text-dark');
+      if (titleAnchor.length === 0) return;
+
+      const title = titleAnchor.text().replace(/\s+/g, ' ').trim();
+      if (!title) return;
+
+      let pdfUrl = titleAnchor.attr('href');
+      if (pdfUrl) {
+        pdfUrl = pdfUrl.startsWith('http') ? pdfUrl : `https://www.wbhealth.gov.in${pdfUrl}`;
+      }
+
+      const dateRaw = $(row).find('span.date').text().replace(/\s+/g, ' ').trim();
+      if (!dateRaw) return;
+
+      let startDateStr = dateRaw;
+      let endDateStr = null;
+      if (dateRaw.includes('-')) {
+        const parts = dateRaw.split('-');
+        startDateStr = parts[0].trim();
+        endDateStr = parts[1].trim();
+      }
+
+      const startDate = parseExtractedDate(startDateStr);
+      const endDate = endDateStr ? parseExtractedDate(endDateStr) : null;
+      const dateToCheck = endDate || startDate;
+
+      // Keep only vacancy notices from the last 3 months
+      if (!isJobVacancyNotice(title) || !isWithinLast3Months(dateToCheck)) {
+        return;
+      }
+
+      const today = new Date().toISOString().slice(0, 10);
+      let status = 'open';
+      let statusText = 'Apply Online';
+      if (endDate && endDate < today) {
+        status = 'closed';
+        statusText = 'Closed';
+      }
+
+      const milestones = [
+        {
+          date: startDate,
+          title: title,
+          pdfUrl: pdfUrl
+        }
+      ];
+
+      results.push({
+        id: generateId('wbhealth-recruitment', title),
+        dept: 'WBHEALTH',
+        deptFull: 'Health & Family Welfare Department, West Bengal',
+        postName: title,
+        noticeNo: 'N/A',
+        status: status,
+        statusText: statusText,
+        datePosted: startDate,
+        dateDeadline: endDate,
+        lastActivityDate: dateToCheck,
+        milestones: milestones,
+        applyUrl: 'https://www.wbhealth.gov.in/',
+        pdfUrl: pdfUrl,
+        source: 'scraped',
+        category: 'Health & Medical'
+      });
+    });
+
+    console.log(`[WBHEALTH_CRAWLER] Discovered ${results.length} active health recruitment notices.`);
+
+    // Concurrently enrich recruitment notices by fetching and parsing the PDF
+    const scrapePromises = results.map(async (item) => {
+      if (item.pdfUrl) {
+        console.log(`[WBHEALTH_CRAWLER] Fetching PDF to enrich details: ${item.postName.slice(0, 50)}...`);
+        const pdfDetails = await scrapeDetailsFromPdf(item.pdfUrl);
+        return { ...item, ...pdfDetails };
+      }
+      return item;
+    });
+
+    return await Promise.all(scrapePromises);
+  } catch (err) {
+    console.error(`[WBHEALTH_CRAWLER] Main listing page scrape failed: ${err.message}`);
+    return [];
+  }
+}
+
+
+// ---------------------------------------------------------------------------
 // Merge scraped data into the existing jobs database
 //
 // Strategy:
@@ -455,7 +790,7 @@ async function scrapeWBPSCAdvertisements() {
 //   - New scraped entries are appended with partial data
 //   - Returns { newEntries, updatedCount, unchangedCount }
 // ---------------------------------------------------------------------------
-function mergeScrapedData(existingJobs, scrapedNotifications, scrapedAdvertisements) {
+function mergeScrapedData(existingJobs, scrapedNotifications, scrapedAdvertisements, scrapedWBPRB = [], scrapedWBHEALTH = []) {
   const existingIds = new Set(existingJobs.map(j => j.id));
   const newEntries = [];
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
@@ -469,11 +804,19 @@ function mergeScrapedData(existingJobs, scrapedNotifications, scrapedAdvertiseme
     return { status: 'open', statusText: 'Active' };
   }
 
-  // Process advertisements (richer data)
+  // Process advertisements (richer data - WBPSC)
   scrapedAdvertisements.forEach(advt => {
     if (existingIds.has(advt.id)) return; // Already exists — skip
 
     const statusInfo = inferStatus(advt.startDate, advt.endDate);
+
+    const milestones = [
+      {
+        date: advt.startDate || advt.uploadDate,
+        title: advt.title,
+        pdfUrl: advt.pdfUrl
+      }
+    ];
 
     const jobEntry = {
       id: advt.id,
@@ -490,9 +833,8 @@ function mergeScrapedData(existingJobs, scrapedNotifications, scrapedAdvertiseme
       statusText: statusInfo.statusText,
       datePosted: advt.startDate || advt.uploadDate,
       dateDeadline: advt.endDate,
-      admitCardDate: null,
-      examDate: null,
-      resultsDate: null,
+      lastActivityDate: advt.startDate || advt.uploadDate,
+      milestones: milestones,
       applyUrl: `${WBPSC_BASE_URL}/advertisement.jsp`,
       pdfUrl: advt.pdfUrl,
       source: 'scraped',
@@ -508,7 +850,7 @@ function mergeScrapedData(existingJobs, scrapedNotifications, scrapedAdvertiseme
     existingIds.add(advt.id);
   });
 
-  // Process notifications (less structured — title + PDF only)
+  // Process notifications (less structured - WBPSC)
   scrapedNotifications.forEach(notif => {
     if (existingIds.has(notif.id)) return;
 
@@ -530,6 +872,14 @@ function mergeScrapedData(existingJobs, scrapedNotifications, scrapedAdvertiseme
       }
     }
 
+    const milestones = [
+      {
+        date: notif.dateStarted || notif.uploadDate,
+        title: notif.title,
+        pdfUrl: notif.pdfUrl
+      }
+    ];
+
     const jobEntry = {
       id: notif.id,
       dept: 'WBPSC',
@@ -545,9 +895,8 @@ function mergeScrapedData(existingJobs, scrapedNotifications, scrapedAdvertiseme
       statusText: statusText,
       datePosted: notif.dateStarted || notif.uploadDate,
       dateDeadline: notif.dateDeadline || null,
-      admitCardDate: null,
-      examDate: null,
-      resultsDate: null,
+      lastActivityDate: notif.dateStarted || notif.uploadDate,
+      milestones: milestones,
       applyUrl: `${WBPSC_BASE_URL}/notification_announcement.jsp`,
       pdfUrl: notif.pdfUrl,
       source: 'scraped',
@@ -563,16 +912,90 @@ function mergeScrapedData(existingJobs, scrapedNotifications, scrapedAdvertiseme
     existingIds.add(notif.id);
   });
 
+  // Process WBPRB drives (Stateful Parent-Child)
+  scrapedWBPRB.forEach(drive => {
+    if (existingIds.has(drive.id)) return;
+
+    const jobEntry = {
+      id: drive.id,
+      dept: 'WBPRB',
+      deptFull: 'West Bengal Police Recruitment Board',
+      postName: drive.postName,
+      noticeNo: drive.noticeNo || 'N/A',
+      vacancies: drive.vacancies !== undefined ? drive.vacancies : null,
+      ageLimit: drive.ageLimit !== undefined ? drive.ageLimit : null,
+      qualification: drive.qualification !== undefined ? drive.qualification : null,
+      payScale: drive.payScale !== undefined ? drive.payScale : null,
+      category: 'Police & Defense',
+      status: drive.status,
+      statusText: drive.statusText,
+      datePosted: drive.datePosted,
+      dateDeadline: drive.dateDeadline || null,
+      lastActivityDate: drive.lastActivityDate,
+      milestones: drive.milestones,
+      applyUrl: drive.applyUrl,
+      pdfUrl: drive.pdfUrl,
+      source: 'scraped',
+      crawlHistory: [
+        {
+          date: timestamp,
+          event: `[LIVE_CRAWLER] Scraped from prb.wb.gov.in/recruitments.`
+        }
+      ]
+    };
+
+    newEntries.push(jobEntry);
+    existingIds.add(drive.id);
+  });
+
+  // Process WBHEALTH recruitments
+  scrapedWBHEALTH.forEach(job => {
+    if (existingIds.has(job.id)) return;
+
+    const jobEntry = {
+      id: job.id,
+      dept: 'WBHEALTH',
+      deptFull: job.deptFull,
+      postName: job.postName,
+      noticeNo: job.noticeNo || 'N/A',
+      vacancies: job.vacancies !== undefined ? job.vacancies : null,
+      ageLimit: job.ageLimit !== undefined ? job.ageLimit : null,
+      qualification: job.qualification !== undefined ? job.qualification : null,
+      payScale: job.payScale !== undefined ? job.payScale : null,
+      category: 'Health & Medical',
+      status: job.status,
+      statusText: job.statusText,
+      datePosted: job.datePosted,
+      dateDeadline: job.dateDeadline || null,
+      lastActivityDate: job.lastActivityDate,
+      milestones: job.milestones,
+      applyUrl: job.applyUrl,
+      pdfUrl: job.pdfUrl,
+      source: 'scraped',
+      crawlHistory: [
+        {
+          date: timestamp,
+          event: `[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard.`
+        }
+      ]
+    };
+
+    newEntries.push(jobEntry);
+    existingIds.add(job.id);
+  });
+
   return {
     newEntries,
     unchangedCount: existingJobs.length,
-    totalScraped: scrapedNotifications.length + scrapedAdvertisements.length
+    totalScraped: scrapedNotifications.length + scrapedAdvertisements.length + scrapedWBPRB.length + scrapedWBHEALTH.length
   };
 }
 
 module.exports = {
   scrapeWBPSCNotifications,
   scrapeWBPSCAdvertisements,
+  scrapeWBPRBRecruitments,
+  scrapeWBHEALTHRecruitments,
   mergeScrapedData,
   isJobVacancyNotice,
   isWithinLast3Months
