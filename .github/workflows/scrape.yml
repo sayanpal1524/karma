@@ -1,0 +1,51 @@
+name: Scheduled Gov Portal Scraper
+
+on:
+  schedule:
+    # Runs every 4 hours (At minute 0 of every 4th hour)
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+    # Allows you to trigger the scraper manually from the GitHub UI anytime
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out your repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Install NPM dependencies
+      - name: Install Dependencies
+        run: npm ci
+
+      # 4. Execute the scraper engine
+      - name: Run Crawler Scraper
+        run: node scraper.js
+        env:
+          NODE_ENV: production
+
+      # 5. Check for database changes and commit back to main branch
+      - name: Commit & Push Scrape Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Stage the scraped database file
+          git add scrapedJobs.json
+          
+          # Check if there are actual changes before committing to avoid workflow errors
+          if git diff-index --quiet HEAD; then
+            echo "No new recruitment notices discovered. Skipping commit."
+          else
+            git commit -m "Auto-crawler sync: Updated scrapedJobs.json [skip ci]"
+            git push origin main
+          fi
