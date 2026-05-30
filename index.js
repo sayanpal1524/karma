@@ -354,10 +354,16 @@
 
     // Toggle blocks visibility
     Object.keys(categoryBlocks).forEach(cat => {
-      const count = matchedCategoryCounts[cat];
       const block = categoryBlocks[cat];
       if (!block) return;
       
+      // [HIDDEN - FUTURE RELEASE] Inactive categories (Teaching, Clerical, Technical) should remain hidden for the upcoming release
+      if (cat === "Education & Teaching" || cat === "Clerical" || cat === "Technical & Medical") {
+        block.style.display = "none";
+        return;
+      }
+
+      const count = matchedCategoryCounts[cat];
       const badge = block.querySelector(".cat-badge");
       if (badge) badge.innerText = count + (count === 1 ? " notice" : " notices");
 
@@ -370,10 +376,7 @@
           const catIcons = {
             "General Administration": "🏛️",
             "Police & Defense": "🛡️",
-            "Health & Medical": "🏥",
-            "Education & Teaching": "🎓",
-            "Clerical": "📂",
-            "Technical & Medical": "⚙️"
+            "Health & Medical": "🏥"
           };
           const icon = catIcons[cat] || "📡";
           container.innerHTML = `

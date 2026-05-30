@@ -22,26 +22,15 @@
     
     <div class="masthead-main">
       <!-- High-Tech Inline SVG West Bengal Map Outline (Glowing Vector Art) -->
-      <div class="masthead-logo">
-        <svg viewBox="0 0 100 160" width="100" height="160" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="map-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#f59e0b" />
-              <stop offset="50%" stop-color="#d97706" />
-              <stop offset="100%" stop-color="#b45309" />
-            </linearGradient>
-            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#f59e0b" flood-opacity="0.3" />
-            </filter>
-          </defs>
-          <!-- Abstracted high-end geographical path representation of West Bengal -->
-          <path d="M 45,5 C 50,5 52,10 50,15 C 48,20 54,22 55,25 C 56,28 50,30 48,32 C 46,34 50,38 52,40 C 54,42 52,45 50,47 C 48,49 46,51 45,54 C 44,57 41,60 40,62 C 39,64 35,66 33,68 C 31,70 30,73 30,76 C 30,79 33,82 35,85 C 37,88 38,91 38,94 C 38,97 36,99 35,102 C 34,105 32,108 30,111 C 28,114 26,117 25,120 C 24,123 26,126 28,128 C 30,130 33,128 35,127 C 37,126 40,128 42,130 C 44,132 43,135 44,138 C 45,141 48,143 50,145 C 52,147 55,146 58,144 C 61,142 63,139 65,136 C 67,133 65,130 67,127 C 69,124 73,123 75,120 C 77,117 76,114 78,111 C 80,108 83,106 85,103 C 87,100 85,97 84,94 C 83,91 80,88 80,85 C 80,82 82,79 81,76 C 80,73 77,71 75,69 C 73,67 72,64 72,61 C 72,58 74,55 73,52 C 72,49 68,47 66,44 C 64,41 65,38 63,35 C 61,32 58,30 56,27 C 54,24 53,21 52,18 C 51,15 48,10 47,8 Z" 
-                stroke="url(#map-glow)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)" fill="rgba(245, 158, 11, 0.05)" />
+      <div class="masthead-logo" style="position: relative; width: 110px; height: 176px; filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.35));">
+        <img src="west_bengal.png" alt="West Bengal Map Outline" 
+             style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)) saturate(1.5) brightness(1.05);" />
+        <svg viewBox="0 0 100 160" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
           <!-- Hotspot nodes indicating scan points (Kolkata, Siliguri, etc.) -->
           <circle cx="58" cy="120" r="2.5" fill="#10b981" />
           <circle cx="58" cy="120" r="6" stroke="#10b981" stroke-width="0.8" opacity="0.6" />
           <circle cx="50" cy="20" r="2" fill="#3b82f6" />
-          <circle cx="35" cy="85" r="2.5" fill="#f59e0b" />
+          <circle cx="33" cy="105" r="2.5" fill="#f59e0b" />
           <path d="M 58,120 L 70,126" stroke="#10b981" stroke-width="0.5" stroke-dasharray="2,2" />
           <path d="M 50,20 L 62,14" stroke="#3b82f6" stroke-width="0.5" stroke-dasharray="2,2" />
         </svg>
@@ -99,18 +88,21 @@
         <span class="stat-num open-c" id="stat-open">5</span>
         <span class="stat-label">Apply Online ✓</span>
       </div>
-      <div class="stat-card" data-status="soon">
+      
+      <!-- [HIDDEN - FUTURE RELEASE] Coming Soon, Admit Cards, and Results elements below -->
+      <div class="stat-card" data-status="soon" style="display: none;">
         <span class="stat-num soon-c" id="stat-soon">3</span>
         <span class="stat-label">Coming Soon ◑</span>
       </div>
-      <div class="stat-card" data-status="admit">
+      <div class="stat-card" data-status="admit" style="display: none;">
         <span class="stat-num admit-c" id="stat-admit">1</span>
         <span class="stat-label">Admit Cards Out 📇</span>
       </div>
-      <div class="stat-card" data-status="results">
+      <div class="stat-card" data-status="results" style="display: none;">
         <span class="stat-num results-c" id="stat-results">1</span>
         <span class="stat-label">Results Declared 🏆</span>
       </div>
+      
       <div class="stat-card" data-status="closed">
         <span class="stat-num closed-c" id="stat-closed">1</span>
         <span class="stat-label">Closed / Archived ✗</span>
@@ -121,16 +113,22 @@
     <div class="progress-bar-wrap">
       <div class="progress-bar-track" id="segment-track">
         <div class="progress-segment bg-open" style="width: 50%" id="seg-open"></div>
-        <div class="progress-segment bg-soon" style="width: 30%" id="seg-soon"></div>
-        <div class="progress-segment bg-admit" style="width: 10%" id="seg-admit"></div>
-        <div class="progress-segment bg-results" style="width: 10%" id="seg-results"></div>
+        
+        <!-- [HIDDEN - FUTURE RELEASE] Progress Bar Segments below -->
+        <div class="progress-segment bg-soon" style="width: 30%; display: none;" id="seg-soon"></div>
+        <div class="progress-segment bg-admit" style="width: 10%; display: none;" id="seg-admit"></div>
+        <div class="progress-segment bg-results" style="width: 10%; display: none;" id="seg-results"></div>
+        
         <div class="progress-segment bg-closed" style="width: 0%" id="seg-closed"></div>
       </div>
       <div class="progress-legend">
         <span><span class="legend-dot bg-open"></span>Apply Online</span>
-        <span><span class="legend-dot bg-soon"></span>Coming Soon</span>
-        <span><span class="legend-dot bg-admit"></span>Admit Cards Out</span>
-        <span><span class="legend-dot bg-results"></span>Results Out</span>
+        
+        <!-- [HIDDEN - FUTURE RELEASE] Progress Legend Spans below -->
+        <span style="display: none;"><span class="legend-dot bg-soon"></span>Coming Soon</span>
+        <span style="display: none;"><span class="legend-dot bg-admit"></span>Admit Cards Out</span>
+        <span style="display: none;"><span class="legend-dot bg-results"></span>Results Out</span>
+        
         <span><span class="legend-dot bg-closed"></span>Closed</span>
       </div>
     </div>
@@ -151,9 +149,11 @@
             <option value="WBPSC">WBPSC (Public Service)</option>
             <option value="WBPRB">WBPRB (Police Board)</option>
             <option value="WBHEALTH">WBHEALTH (Health Dept)</option>
-            <option value="WBBPE">WBBPE (Primary Board)</option>
-            <option value="WBSSC">WBSSC (School Service)</option>
-            <option value="WBJEEB">WBJEEB (Entrance Exams)</option>
+            
+            <!-- [HIDDEN - FUTURE RELEASE] Inactive departments below -->
+            <option value="WBBPE" style="display: none;">WBBPE (Primary Board)</option>
+            <option value="WBSSC" style="display: none;">WBSSC (School Service)</option>
+            <option value="WBJEEB" style="display: none;">WBJEEB (Entrance Exams)</option>
           </select>
         </div>
         
@@ -168,9 +168,11 @@
         <button class="chip" data-category="General Administration">General Admin</button>
         <button class="chip" data-category="Police & Defense">Police & Defense</button>
         <button class="chip" data-category="Health & Medical">Health & Nurse</button>
-        <button class="chip" data-category="Education & Teaching">Teaching</button>
-        <button class="chip" data-category="Clerical">Clerical / Office</button>
-        <button class="chip" data-category="Technical & Medical">Technical / Entrance</button>
+        
+        <!-- [HIDDEN - FUTURE RELEASE] Inactive sector chips below -->
+        <button class="chip" data-category="Education & Teaching" style="display: none;">Teaching</button>
+        <button class="chip" data-category="Clerical" style="display: none;">Clerical / Office</button>
+        <button class="chip" data-category="Technical & Medical" style="display: none;">Technical / Entrance</button>
       </div>
     </div>
   </section>
@@ -235,8 +237,10 @@
         </div>
       </div>
 
+      <!-- [HIDDEN - FUTURE RELEASE] Inactive Accordion Blocks below (Teaching, Clerical, Technical) -->
+      
       <!-- Education Accordion -->
-      <div class="category-block expanded" id="cat-block-education">
+      <div class="category-block expanded" id="cat-block-education" style="display: none;">
         <div class="category-header">
           <span class="cat-icon">🎓</span>
           <div class="cat-title-wrap">
@@ -254,7 +258,7 @@
       </div>
 
       <!-- Clerical Accordion -->
-      <div class="category-block expanded" id="cat-block-clerical">
+      <div class="category-block expanded" id="cat-block-clerical" style="display: none;">
         <div class="category-header">
           <span class="cat-icon">📂</span>
           <div class="cat-title-wrap">
@@ -272,7 +276,7 @@
       </div>
 
       <!-- Technical Accordion -->
-      <div class="category-block expanded" id="cat-block-technical">
+      <div class="category-block expanded" id="cat-block-technical" style="display: none;">
         <div class="category-header">
           <span class="cat-icon">⚙️</span>
           <div class="cat-title-wrap">
@@ -332,6 +336,114 @@
     </aside>
 
   </div>
+
+  <!-- Premium Interactive Footer -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      
+      <!-- Callout Banner: This is not a government website -->
+      <div class="footer-callout">
+        <h4 class="callout-title">📄 This is not a government-affiliated website.</h4>
+        <p class="callout-desc">
+          It is an independent public ledger and crawler dashboard maintained by ordinary people of West Bengal — so job seekers can track active vacancies, exam notices, and registrations in real-time. We hold no official affiliation with any government department or recruitment board. We track official announcements, not rumors.
+        </p>
+        <!-- [HIDDEN - FUTURE RELEASE] FAQ Button below -->
+        <button class="btn-footer" onclick="window.open('https://psc.wb.gov.in', '_blank')" style="display: none;">
+          ❓ Read the Frequently Asked Questions (FAQ) →
+        </button>
+      </div>
+
+      <!-- Two-Column Grid: Good Faith & Host Version -->
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h5 class="col-header">🏛️ A Note on Good Faith</h5>
+          <p class="col-text">
+            This tracker was created with genuine good faith — we believe in transparency and empowering the youth of West Bengal by making exam notifications, admit cards, and merit lists easily accessible. We aim to help candidates stay updated so they never miss an official state deadline.
+          </p>
+          <p class="col-text">
+            We are ordinary developers, not board officials. Since government portals frequently update or experience downtime, there is a real possibility that we miss an announcement or fail to parse details instantly. <strong>That is exactly why we need your help</strong>. If you detect an update or a mismatch — please report it.
+          </p>
+          <button class="btn-footer" onclick="window.open('mailto:support@wbupdates.com', '_blank')">
+            ✉️ Submit Feedback or Correction →
+          </button>
+        </div>
+
+        <div class="footer-col">
+          <h5 class="col-header">💻 Host Your Own Version</h5>
+          <p class="col-text">
+            Anyone can fork this recruitment tracker and adapt it for their own region, department, or organization. The complete source code of this crawler engine and dashboard is open-source. Just clone, configure your scrapers, and deploy to any modern hosting platform like GitHub Pages, Vercel, or Netlify.
+          </p>
+          <p class="col-text">
+            <em>Note: The automated crawler backend is powered by a lightweight Node.js Express server. You can download, review, and run it locally to see the active Cheerio engines in action.</em>
+          </p>
+          <button class="btn-footer" onclick="window.open('https://github.com', '_blank')">
+            &lt;/&gt; View Complete Source Code →
+          </button>
+        </div>
+      </div>
+
+      <!-- Methodology Section -->
+      <div class="footer-methodology">
+        <h5 class="methodology-header">📋 Crawler Methodology & Standards</h5>
+        <div class="methodology-grid">
+          
+          <div class="methodology-item">
+            <span class="methodology-num">01</span>
+            <div class="methodology-body">
+              <h6 class="methodology-title">Source of Recruitment Data</h6>
+              <p class="methodology-desc">
+                All active notices and vacancy counts are crawled verbatim from the official state portals, including **WBPSC**, **WBPRB**, and **WBHEALTH**. <a href="scrapedJobs.json" target="_blank">📄 View Persistent JSON Database →</a>
+              </p>
+            </div>
+          </div>
+
+          <div class="methodology-item">
+            <span class="methodology-num">02</span>
+            <div class="methodology-body">
+              <h6 class="methodology-title">Crawl & Verification Hierarchy</h6>
+              <p class="methodology-desc">
+                We follow a strict verification protocol: (1) Direct machine-parsed HTML tables and official PDF notices from the state domain — the gold standard. (2) Verified secondary announcement channels. We do not index job openings from third-party private aggregation sites, social media groups, or unverified leaks.
+              </p>
+            </div>
+          </div>
+
+          <div class="methodology-item">
+            <span class="methodology-num">03</span>
+            <div class="methodology-body">
+              <h6 class="methodology-title">How a Notice is Inferred & Updated</h6>
+              <p class="methodology-desc">
+                Notices are parsed in real-time. A notice status is marked as 'open' (Apply Online) when the application window is active. It automatically shifts to 'closed' once the parsed closing deadline has elapsed. Critical updates (admit cards, exam dates) are dynamically appended to the milestones timeline.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Disclaimer & Waiver Block -->
+      <div class="footer-disclaimer">
+        <h5 class="disclaimer-header">Full Legal Disclaimer & Absolute Waiver of Liability</h5>
+        <p class="disclaimer-text">
+          This website is a static informational page provided "as is". It is not an official government service or a registered entity.
+        </p>
+        <p class="disclaimer-text">
+          <strong>The creator(s) and maintainer(s) of this page accept absolutely no liability</strong> — legal, financial, moral, or otherwise — for any outcome resulting from a visitor's use of this page. This includes without limitation: reliance on incorrect AI-generated information; use of outdated or broken government links; missed deadlines; harm arising from sharing personal information with third-party AI platforms; government inaction; and any direct, indirect, incidental, consequential, or punitive damages of any kind.
+        </p>
+        <p class="disclaimer-text">
+          This page makes no representations or warranties as to the accuracy, completeness, or reliability of any information presented. All content is provided strictly "as is."
+        </p>
+        <p class="disclaimer-text">
+          The maximum aggregate liability of this page's creator(s) for any claim of any kind is <strong>zero rupees (₹0.00)</strong>. By using this page you accept these terms in full.
+        </p>
+      </div>
+
+      <!-- Copyright Area -->
+      <div class="footer-bottom">
+        <p>© 2026 KARMA Gov Jobs Tracker — Open Source Public Accountability Initiative. Bengal Saffron Dashboard v1.6.</p>
+      </div>
+
+    </div>
+  </footer>
 
   <!-- Detailed Overlay Drawer (Job detail drawers panel) -->
   <div class="drawer-overlay" id="detail-drawer-overlay">
