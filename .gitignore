@@ -1,1 +1,20 @@
+# Dependency directories
 /node_modules
+
+# Log files
+*.log
+npm-debug.log*
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local Environment Variables
+.env
+.env.*

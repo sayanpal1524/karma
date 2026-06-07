@@ -1,0 +1,59 @@
+# Implementation Plan: GitHub Actions Cron Scraper & CDN Integration (Approach A)
+
+This plan details the implementation of **Approach A** to fix the "Sandbox Sim" issue on the hosted Cloudflare Pages website. We will set up a scheduled GitHub Action to run the scraper, write its results back to the repository's database file, and refactor the frontend codebase to load the data statically when hosted.
+
+## Proposed Changes
+
+---
+
+### [Scraper Executable Script]
+To run the Cheerio scrapers and update the database file inside GitHub Actions, we need a runnable Node.js script since `scraper.js` only exports module functions.
+
+#### [NEW] [runScraper.js](file:///d:/Projects/karma/runScraper.js)
+- Create a script that imports functions from `scraper.js`.
+- Reads `scrapedJobs.json`.
+- Runs all government job crawlers in parallel.
+- Merges the newly crawled listings with the existing cache.
+- Runs database cleanup to remove outdated (older than 3 months) or invalid postings.
+- Atomically writes the updated list back to `scrapedJobs.json`.
+
+---
+
+### [GitHub Actions Workflow]
+Configure a scheduled cron event to run the crawler twice daily and commit the database file changes back to git.
+
+#### [MODIFY] [scrape.yml](file:///d:/Projects/karma/.github/workflows/scrape.yml)
+- Adjust the cron schedule to run twice a day (e.g. 10:30 AM and 5:30 PM IST).
+- Change step 4 to run `node runScraper.js` instead of the non-executable `node scraper.js`.
+- Update the git commit step to ensure the commit message has appropriate tags and uses the GitHub Actions bot username/email.
+
+---
+
+### [Frontend Application Logic]
+Update the client-side JavaScript engine to dynamically locate the database based on the hosting environment (localhost vs Cloudflare CDN).
+
+#### [MODIFY] [index.js](file:///d:/Projects/karma/index.js)
+- Refactor `probeBackendServer()` to dynamically determine the request target:
+  - If running on `localhost` or `127.0.0.1`, try connecting to the live Express server at `http://localhost:3000/api/jobs`.
+  - If hosted on a public domain (e.g. Cloudflare Pages), query `./scrapedJobs.json` directly as a relative path from the CDN.
+- If connected via CDN static mode, display a status indicating **"CDN STATIC"** instead of reverting to Sandbox Mode.
+- Refactor the **"Force Portal Scan"** action handler in `index.js`:
+  - When in local live mode, continue triggering the live backend crawl POST.
+  - When in CDN static mode, instead of falling back to sandbox animation, output a clear console message stating that manual scans are restricted to prevent DDoS/CORS blocks on government servers, and explaining that the automated scraper updates the ledger twice daily.
+
+---
+
+## Verification Plan
+
+### Automated/Local Tests
+- Run `node runScraper.js` locally to verify that the scraping executes successfully, merges new entries, and updates the local `scrapedJobs.json` file.
+- Verify `package.json` configurations.
+- Verify that `node runScraper.js` executes without any errors.
+
+### Manual Verification
+- Start the local dev server using `npm run dev` and verify that the page continues to detect the live local server successfully.
+- Stop the local Express server, reload, and verify that the app loads `scrapedJobs.json` locally (since it will fall back to local relative loading).
+- Verify the retro-console log outputs in the browser terminal:
+  - Check that the live connection displays "LIVE PORTAL"
+  - Check that when running without the local Express server, it loads the database files from `./scrapedJobs.json` and displays "CDN STATIC".
+  - Click "Force Portal Scan" in static mode to confirm the new informational output displays correctly.

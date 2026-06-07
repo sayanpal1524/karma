@@ -186,6 +186,8 @@
     btnScan.addEventListener("click", () => {
       if (state.mode === "live") {
         triggerLiveServerScan();
+      } else if (state.mode === "static") {
+        triggerStaticRestrictedScan();
       } else {
         triggerLocalSandboxScan();
       }
@@ -235,20 +237,43 @@
         throw new Error("Server returned error status " + response.status);
       }
     } catch (err) {
-      // Revert automatically to Sandbox Simulation Mode
-      state.jobs = JSON.parse(JSON.stringify(JOBS_DATA)); // Use standard offline dataset
-      state.mode = "sandbox";
-
-      writeConsoleLine("[SYSTEM] Local backend server offline or CORS block.", "warning");
-      writeConsoleLine("[SYSTEM] Reverting automatically to Offline Sandbox Mode.", "warning");
-      writeConsoleLine("[DATABASE] Loaded local preloaded notices database (CORS safe).", "success");
+      writeConsoleLine("[SYSTEM] Local backend server offline. Probing CDN static database...", "warning");
       
-      if (connectionStatus) {
-        connectionStatus.innerText = "SANDBOX SIM";
-        connectionStatus.style.color = "var(--primary)";
-      }
-      if (indicator) {
-        indicator.style.backgroundColor = "var(--primary)";
+      try {
+        const staticResponse = await fetch("./scrapedJobs.json");
+        if (staticResponse.ok) {
+          state.jobs = await staticResponse.json();
+          state.mode = "static";
+
+          writeConsoleLine("[SYSTEM] Connected successfully to CDN Static Database!", "success");
+          writeConsoleLine("[DATABASE] Synchronized notices cache from static CDN build.", "success");
+          
+          if (connectionStatus) {
+            connectionStatus.innerText = "CDN STATIC";
+            connectionStatus.style.color = "var(--color-soon)"; // Classic Blue
+          }
+          if (indicator) {
+            indicator.style.backgroundColor = "var(--color-soon)";
+          }
+        } else {
+          throw new Error("CDN database returned error status " + staticResponse.status);
+        }
+      } catch (staticErr) {
+        // Revert automatically to Sandbox Simulation Mode
+        state.jobs = JSON.parse(JSON.stringify(JOBS_DATA)); // Use standard offline dataset
+        state.mode = "sandbox";
+
+        writeConsoleLine("[SYSTEM] All remote data sources unreachable.", "closed");
+        writeConsoleLine("[SYSTEM] Reverting automatically to Offline Sandbox Mode.", "warning");
+        writeConsoleLine("[DATABASE] Loaded local preloaded notices database (CORS safe).", "success");
+        
+        if (connectionStatus) {
+          connectionStatus.innerText = "SANDBOX SIM";
+          connectionStatus.style.color = "var(--primary)";
+        }
+        if (indicator) {
+          indicator.style.backgroundColor = "var(--primary)";
+        }
       }
     }
 
@@ -758,6 +783,40 @@
       }
       state.scannerActive = false;
     }, 3800);
+  }
+
+  // --- MANUAL SCANNER: CDN STATIC RESTRICTED MODE ---
+  function triggerStaticRestrictedScan() {
+    if (state.scannerActive) return;
+
+    state.scannerActive = true;
+    const btnScan = document.getElementById("btn-trigger-scan");
+    const btnText = document.getElementById("scan-btn-text");
+    const connectionStatus = document.getElementById("scan-connection-status");
+
+    btnScan.classList.add("scanning");
+    btnText.innerText = "Verifying access...";
+    if (connectionStatus) {
+      connectionStatus.innerText = "VERIFYING";
+      connectionStatus.style.color = "var(--color-soon)";
+    }
+
+    writeConsoleLine("[SYS_ALERT] MANUAL OVERRIDE PORTAL CRAWL REQUEST TRANSMITTED.", "warning");
+
+    setTimeout(() => {
+      writeConsoleLine("[SYS_ALERT] CRAWL RESTRICTED: Live client-side crawls are disabled on public CDN hosts.", "closed");
+      writeConsoleLine("[SYS_INFO] This protects public portal IPs and avoids browser CORS/security blockages.", "info");
+      writeConsoleLine("[SYS_INFO] Cloud scraper executes scheduled updates twice daily (10:30 AM & 5:30 PM IST).", "info");
+      writeConsoleLine("[SYS_INFO] Next automated scan execution registered. State is up-to-date.", "success");
+
+      btnScan.classList.remove("scanning");
+      btnText.innerText = "Force Portal Scan";
+      if (connectionStatus) {
+        connectionStatus.innerText = "CDN STATIC";
+        connectionStatus.style.color = "var(--color-soon)";
+      }
+      state.scannerActive = false;
+    }, 1800);
   }
 
   // --- MANUAL SCANNER: OFFLINE SANDBOX FALLBACK MODE ---

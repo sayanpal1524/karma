@@ -2,8 +2,8 @@ name: Scheduled Gov Portal Scraper
 
 on:
   schedule:
-    # Runs every 4 hours (At minute 0 of every 4th hour)
-    - cron: '0 */4 * * *'
+    # Runs at 10:30 AM and 5:30 PM IST (5:00 AM and 12:00 PM UTC), Monday to Saturday
+    - cron: '0 5,12 * * 1-6'
   workflow_dispatch:
     # Allows you to trigger the scraper manually from the GitHub UI anytime
 
@@ -29,7 +29,7 @@ jobs:
 
       # 4. Execute the scraper engine
       - name: Run Crawler Scraper
-        run: node scraper.js
+        run: node runScraper.js
         env:
           NODE_ENV: production
 
