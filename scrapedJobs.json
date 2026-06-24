@@ -204,40 +204,6 @@
     "newlyDiscovered": true
   },
   {
-    "id": "wbhealth-recruitment-2157b81e",
-    "dept": "WBHEALTH",
-    "deptFull": "Health & Family Welfare Department, West Bengal",
-    "postName": "Eligible candidates for computer test for the post of STLS",
-    "noticeNo": "N/A",
-    "vacancies": null,
-    "ageLimit": null,
-    "qualification": null,
-    "payScale": null,
-    "category": "Health & Medical",
-    "status": "closed",
-    "statusText": "Closed",
-    "datePosted": "2026-03-23",
-    "dateDeadline": null,
-    "lastActivityDate": "2026-03-23",
-    "milestones": [
-      {
-        "date": "2026-03-23",
-        "title": "Eligible candidates for computer test for the post of STLS",
-        "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_f500e269-911f-4731-a35a-1a25ad6f7bd6.pdf"
-      }
-    ],
-    "applyUrl": "https://www.wbhealth.gov.in/",
-    "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_f500e269-911f-4731-a35a-1a25ad6f7bd6.pdf",
-    "source": "scraped",
-    "crawlHistory": [
-      {
-        "date": "2026-05-30 15:04",
-        "event": "[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard."
-      }
-    ],
-    "newlyDiscovered": true
-  },
-  {
     "id": "wbpsc-notif-353d31aa",
     "dept": "WBPSC",
     "deptFull": "Public Service Commission, West Bengal",
