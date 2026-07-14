@@ -270,39 +270,5 @@
       }
     ],
     "newlyDiscovered": true
-  },
-  {
-    "id": "wbpsc-notif-7533ea05",
-    "dept": "WBPSC",
-    "deptFull": "Public Service Commission, West Bengal",
-    "postName": "INDICATIVE ADVERTISEMENT IN CONNECTION WITH PRINCIPAL IN THE DISTRICT INSTITUTE OF EDUCATION AND TRAINING UNDER THE SCHOOL EDUCATION DEPARTMENT, GOVERNMENT OF WEST BENGAL (ADVT. NO. 05/2026)",
-    "noticeNo": "05/2026",
-    "vacancies": null,
-    "ageLimit": null,
-    "qualification": null,
-    "payScale": null,
-    "category": "General Administration",
-    "status": "open",
-    "statusText": "Notice Published",
-    "datePosted": "2026-04-13",
-    "dateDeadline": null,
-    "lastActivityDate": "2026-04-13",
-    "milestones": [
-      {
-        "date": "2026-04-13",
-        "title": "INDICATIVE ADVERTISEMENT IN CONNECTION WITH PRINCIPAL IN THE DISTRICT INSTITUTE OF EDUCATION AND TRAINING UNDER THE SCHOOL EDUCATION DEPARTMENT, GOVERNMENT OF WEST BENGAL (ADVT. NO. 05/2026)",
-        "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260413115222_Indicative_Advt_05-2026.pdf&param2=advertisement"
-      }
-    ],
-    "applyUrl": "https://psc.wb.gov.in/notification_announcement.jsp",
-    "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260413115222_Indicative_Advt_05-2026.pdf&param2=advertisement",
-    "source": "scraped",
-    "crawlHistory": [
-      {
-        "date": "2026-05-30 14:24",
-        "event": "[LIVE_CRAWLER] Scraped from psc.wb.gov.in/notification_announcement.jsp."
-      }
-    ],
-    "newlyDiscovered": true
   }
 ]
