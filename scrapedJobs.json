@@ -204,40 +204,6 @@
     "newlyDiscovered": true
   },
   {
-    "id": "wbpsc-notif-353d31aa",
-    "dept": "WBPSC",
-    "deptFull": "Public Service Commission, West Bengal",
-    "postName": "DETAILED ADVERTISEMENT TO THE POST OF MISCELLANEOUS SERVICES RECRUITMENT EXAMINATION, 2024 ADVT. NO. 13/2024",
-    "noticeNo": "13/2024",
-    "vacancies": null,
-    "ageLimit": "39 years",
-    "qualification": null,
-    "payScale": "For the posts at Sl. Nos. (1 to 11) PAY LEVEL: 10 (Rs.32100 - 82900/-)     As pe",
-    "category": "General Administration",
-    "status": "closed",
-    "statusText": "Closed",
-    "datePosted": "2026-04-30",
-    "dateDeadline": "2026-05-20",
-    "lastActivityDate": "2026-04-30",
-    "milestones": [
-      {
-        "date": "2026-04-30",
-        "title": "DETAILED ADVERTISEMENT TO THE POST OF MISCELLANEOUS SERVICES RECRUITMENT EXAMINATION, 2024 ADVT. NO. 13/2024",
-        "pdfUrl": "https://psc.wb.gov.in/Download?param1=Ad_20260425125928_Detailed_Advt_13_2024.pdf&param2=advertisement"
-      }
-    ],
-    "applyUrl": "https://psc.wb.gov.in/notification_announcement.jsp",
-    "pdfUrl": "https://psc.wb.gov.in/Download?param1=Ad_20260425125928_Detailed_Advt_13_2024.pdf&param2=advertisement",
-    "source": "scraped",
-    "crawlHistory": [
-      {
-        "date": "2026-05-30 14:24",
-        "event": "[LIVE_CRAWLER] Scraped from psc.wb.gov.in/notification_announcement.jsp."
-      }
-    ],
-    "newlyDiscovered": true
-  },
-  {
     "id": "wbpsc-notif-08d0ce65",
     "dept": "WBPSC",
     "deptFull": "Public Service Commission, West Bengal",
