@@ -134,39 +134,5 @@
       }
     ],
     "newlyDiscovered": true
-  },
-  {
-    "id": "wbpsc-notif-08d0ce65",
-    "dept": "WBPSC",
-    "deptFull": "Public Service Commission, West Bengal",
-    "postName": "IMPORTANT ANNOUNCEMENT REGARDING EXTENSION OF DATE FOR ONLINE APPLICATION TO THE POST OF OF PRINCIPAL IN THE DISTRICT INSTITUTE OF EDUCATION AND TRAINING (ADVT. NO. 05/2026) UNDER THE SCHOOL EDUCATION DEPARTMENT, GOVERNMENT OF WEST BENGAL AGAINST COMMISSION?S ADVT. NO. 05/2026.",
-    "noticeNo": "N/A",
-    "vacancies": null,
-    "ageLimit": null,
-    "qualification": null,
-    "payScale": null,
-    "category": "General Administration",
-    "status": "open",
-    "statusText": "Notice Published",
-    "datePosted": "2026-05-15",
-    "dateDeadline": null,
-    "lastActivityDate": "2026-05-15",
-    "milestones": [
-      {
-        "date": "2026-05-15",
-        "title": "IMPORTANT ANNOUNCEMENT REGARDING EXTENSION OF DATE FOR ONLINE APPLICATION TO THE POST OF OF PRINCIPAL IN THE DISTRICT INSTITUTE OF EDUCATION AND TRAINING (ADVT. NO. 05/2026) UNDER THE SCHOOL EDUCATION DEPARTMENT, GOVERNMENT OF WEST BENGAL AGAINST COMMISSION?S ADVT. NO. 05/2026.",
-        "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260515195434_Notice_for_extension_of_Online_Application_date.pdf&param2=advertisement"
-      }
-    ],
-    "applyUrl": "https://psc.wb.gov.in/notification_announcement.jsp",
-    "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260515195434_Notice_for_extension_of_Online_Application_date.pdf&param2=advertisement",
-    "source": "scraped",
-    "crawlHistory": [
-      {
-        "date": "2026-05-30 14:24",
-        "event": "[LIVE_CRAWLER] Scraped from psc.wb.gov.in/notification_announcement.jsp."
-      }
-    ],
-    "newlyDiscovered": true
   }
 ]
