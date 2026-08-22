@@ -32,39 +32,5 @@
       }
     ],
     "newlyDiscovered": true
-  },
-  {
-    "id": "wbhealth-recruitment-3e23b024",
-    "dept": "WBHEALTH",
-    "deptFull": "Health & Family Welfare Department, West Bengal",
-    "postName": "Application are Invited for the post of House Staff at Gandhi Memorial Hospital, Kalyani, Nadia",
-    "noticeNo": "N/A",
-    "vacancies": null,
-    "ageLimit": null,
-    "qualification": null,
-    "payScale": null,
-    "category": "Health & Medical",
-    "status": "closed",
-    "statusText": "Closed",
-    "datePosted": "2026-05-21",
-    "dateDeadline": null,
-    "lastActivityDate": "2026-05-28",
-    "milestones": [
-      {
-        "date": "2026-05-21",
-        "title": "Application are Invited for the post of House Staff at Gandhi Memorial Hospital, Kalyani, Nadia",
-        "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_801e160c-e1e9-4d4c-8dab-af219db874ab.pdf"
-      }
-    ],
-    "applyUrl": "https://www.wbhealth.gov.in/",
-    "pdfUrl": "https://www.wbhealth.gov.in/FileServer/UploadedFiles/Recruitments/Recruitment_801e160c-e1e9-4d4c-8dab-af219db874ab.pdf",
-    "source": "scraped",
-    "crawlHistory": [
-      {
-        "date": "2026-05-30 15:04",
-        "event": "[LIVE_CRAWLER] Scraped from wbhealth.gov.in/MainPhaseTwo/NoticeBoard."
-      }
-    ],
-    "newlyDiscovered": true
   }
 ]
