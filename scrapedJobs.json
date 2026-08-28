@@ -1,1 +1,35 @@
-[]
+[
+  {
+    "id": "wbpsc-notif-3276aba2",
+    "dept": "WBPSC",
+    "deptFull": "Public Service Commission, West Bengal",
+    "postName": "IMPORTANT ANNOUNCEMENT REGARDING ADMIT CARD OF WEST BENGAL JUDICIAL SERVICE (PRELIMINARY) EXAMINATION, 2024 ADVT. NO. 9/2024",
+    "noticeNo": "N/A",
+    "vacancies": null,
+    "ageLimit": null,
+    "qualification": null,
+    "payScale": null,
+    "category": "General Administration",
+    "status": "open",
+    "statusText": "Notice Published",
+    "datePosted": "2026-08-28",
+    "dateDeadline": null,
+    "lastActivityDate": "2026-08-28",
+    "milestones": [
+      {
+        "date": "2026-08-28",
+        "title": "IMPORTANT ANNOUNCEMENT REGARDING ADMIT CARD OF WEST BENGAL JUDICIAL SERVICE (PRELIMINARY) EXAMINATION, 2024 ADVT. NO. 9/2024",
+        "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260828142524_Important_announcement_Admitcard_WBJS(Preli)_2024.pdf&param2=advertisement"
+      }
+    ],
+    "applyUrl": "https://psc.wb.gov.in/notification_announcement.jsp",
+    "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260828142524_Important_announcement_Admitcard_WBJS(Preli)_2024.pdf&param2=advertisement",
+    "source": "scraped",
+    "crawlHistory": [
+      {
+        "date": "2026-08-28 17:11",
+        "event": "[LIVE_CRAWLER] Scraped from psc.wb.gov.in/notification_announcement.jsp."
+      }
+    ]
+  }
+]
