@@ -1,5 +1,38 @@
 [
   {
+    "id": "wbpsc-notif-203050a8",
+    "dept": "WBPSC",
+    "deptFull": "Public Service Commission, West Bengal",
+    "postName": "IMPORTANT ANNOUNCEMENT REGARDING DOWNLOAD THE ADMIT CARD FOR THE POST OF MISCELLANEOUS  SERVICES RECRUITMENT (PRELIMINARY) EXAMINATION, 2024 ADVT. NO. 13/2024",
+    "noticeNo": "N/A",
+    "vacancies": null,
+    "ageLimit": null,
+    "qualification": null,
+    "payScale": null,
+    "category": "General Administration",
+    "status": "open",
+    "statusText": "Notice Published",
+    "datePosted": "2026-09-03",
+    "dateDeadline": null,
+    "lastActivityDate": "2026-09-03",
+    "milestones": [
+      {
+        "date": "2026-09-03",
+        "title": "IMPORTANT ANNOUNCEMENT REGARDING DOWNLOAD THE ADMIT CARD FOR THE POST OF MISCELLANEOUS  SERVICES RECRUITMENT (PRELIMINARY) EXAMINATION, 2024 ADVT. NO. 13/2024",
+        "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260903195017_Imp_Announcement_Admitcard_MSRE_2024.pdf&param2=advertisement"
+      }
+    ],
+    "applyUrl": "https://psc.wb.gov.in/notification_announcement.jsp",
+    "pdfUrl": "https://psc.wb.gov.in/Download?param1=An_20260903195017_Imp_Announcement_Admitcard_MSRE_2024.pdf&param2=advertisement",
+    "source": "scraped",
+    "crawlHistory": [
+      {
+        "date": "2026-09-03 15:54",
+        "event": "[LIVE_CRAWLER] Scraped from psc.wb.gov.in/notification_announcement.jsp."
+      }
+    ]
+  },
+  {
     "id": "wbpsc-notif-3276aba2",
     "dept": "WBPSC",
     "deptFull": "Public Service Commission, West Bengal",
